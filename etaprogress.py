@@ -8,6 +8,10 @@ from __future__ import division
 from datetime import datetime
 import time
 
+__author__ = '@Robpol86'
+__license__ = 'MIT'
+__version__ = '1.0.0'
+
 
 class ETA(object):
     """Calculates the estimated time remaining using linear regression."""
@@ -15,16 +19,19 @@ class ETA(object):
     SCOPE_LAST_SECONDS = 60
 
     def __init__(self, denominator):
+        if denominator == 0:
+            raise ValueError('denominator may not be zero.')
+        if denominator < 0:
+            raise ValueError('denominator must be positive/absolute.')
         self.denominator = denominator
-        self.done = False
         self._timing_data = dict()  # Keys are numerators, values are time.time() (Unix epoch).
-        self._latest = (None, None)  # Updated by increment().
+        self._latest = (None, None)  # Updated by set_numerator().
         self._now = time.time  # For testing.
 
-    def increment(self, numerator, timestamp=None):
-        """'Increments' the numerator (number of items done). Also cleans up timing data.
+    def set_numerator(self, numerator, timestamp=None):
+        """Sets the new numerator (number of items done). Also cleans up timing data.
 
-        This method may be used to set new increments or update the current numerator.
+        This method may also be used to update the current numerator.
 
         Positional arguments:
         numerator -- the new numerator to add to the timing data.
@@ -37,8 +44,8 @@ class ETA(object):
         if self._timing_data and numerator < self._latest[0]:
             raise ValueError('cannot edit past numerators.')
         if self._timing_data and timestamp is not None and timestamp < self._latest[1]:
-            raise ValueError('timestamp may not decrement.')
-        if self._timing_data and timestamp is not None and timestamp > now:
+            raise ValueError('timestamp may not decrement (slope must be positive).')
+        if timestamp is not None and timestamp > now:
             raise ValueError('timestamp must not be in the future.')
 
         # Filter old data.
@@ -55,6 +62,11 @@ class ETA(object):
         if not self._timing_data:
             return True
         return self._now() - self._latest[1] >= timeout
+
+    @property
+    def done(self):
+        """Returns True if numerator == denominator."""
+        return self._latest[0] == self.denominator
 
     @property
     def eta_datetime(self):
@@ -76,7 +88,7 @@ class ETA(object):
     def numerator(self):
         """Returns the latest numerator."""
         if not self._timing_data:
-            return None
+            return 0
         return self._latest[0]
 
     @property
