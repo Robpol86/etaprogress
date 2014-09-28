@@ -5,12 +5,13 @@ from etaprogress import ETA
 
 def test_empty():
     eta = ETA(50)
-    assert eta.stalled() is True
+    assert 50 == eta.denominator
+    assert eta.eta_epoch is None
+    assert eta.rate is None
     assert eta.done is False
     assert eta.eta_datetime is None
     assert eta.eta_seconds is None
     assert 0 == eta.numerator
-    assert eta.rate is None
 
 
 def test_error_denominator():
