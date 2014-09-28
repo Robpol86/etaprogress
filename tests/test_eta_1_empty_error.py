@@ -19,11 +19,11 @@ def test_empty():
 def test_error_denominator():
     with pytest.raises(ValueError) as e:
         ETA(0)
-    assert 'denominator may not be zero.' == e.value.message
+    assert 'denominator may not be zero.' == str(e.value)
 
     with pytest.raises(ValueError) as e:
         ETA(-50)
-    assert 'denominator must be positive/absolute.' == e.value.message
+    assert 'denominator must be positive/absolute.' == str(e.value)
 
 
 def test_error_numerator():
@@ -33,4 +33,4 @@ def test_error_numerator():
 
     with pytest.raises(ValueError) as e:
         eta.set_numerator(0)
-    assert 'numerator cannot decrement.' == e.value.message
+    assert 'numerator cannot decrement.' == str(e.value)
