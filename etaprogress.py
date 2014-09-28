@@ -10,15 +10,16 @@ import time
 
 
 class ETA(object):
-    """Calculates the estimated time remaining."""
+    """Calculates the estimated time remaining using linear regression."""
 
     SCOPE_LAST_SECONDS = 60
 
     def __init__(self, denominator):
         self.denominator = denominator
         self.done = False
-        self._data = dict()  # Keys are numerators, values are time.time() (Unix epoch).
-        self._now = lambda: time.time()  # For testing.
+        self._timing_data = dict()  # Keys are numerators, values are time.time() (Unix epoch).
+        self._latest = (None, None)  # Updated by increment().
+        self._now = time.time  # For testing.
 
     def increment(self, numerator, timestamp=None):
         """'Increments' the numerator (number of items done). Also cleans up timing data.
@@ -32,52 +33,58 @@ class ETA(object):
         timestamp -- optionally override the time the numerator changed. Defaults to right now.
         """
         # Validate
-        latest = sorted(self._data.items())[-1] if self._data else (None, None)
         now = self._now()
-        if self._data and numerator < latest[0]:
+        if self._timing_data and numerator < self._latest[0]:
             raise ValueError('cannot edit past numerators.')
-        if self._data and timestamp is not None and timestamp < latest[1]:
+        if self._timing_data and timestamp is not None and timestamp < self._latest[1]:
             raise ValueError('timestamp may not decrement.')
-        if self._data and timestamp is not None and timestamp > now:
+        if self._timing_data and timestamp is not None and timestamp > now:
             raise ValueError('timestamp must not be in the future.')
 
-        # Update data.
-        self._data[numerator] = timestamp or now
-
         # Filter old data.
-        self._data = dict((k, v) for k, v in self._data.items() if now - v <= self.SCOPE_LAST_SECONDS)
+        if self._timing_data:
+            self._timing_data = dict((k, v) for k, v in self._timing_data.items() if now - v <= self.SCOPE_LAST_SECONDS)
+
+        # Update data.
+        value = timestamp or now
+        self._timing_data[numerator] = value
+        self._latest = (numerator, value)
 
     def stalled(self, timeout=5):
         """Returns True if no data has been added in the last 5 (default timeout) seconds."""
-        if not self._data:
+        if not self._timing_data:
             return True
-        latest = sorted(self._data.items())[-1]
-        return time.time() - latest[1] >= timeout
+        return self._now() - self._latest[1] >= timeout
 
     @property
     def eta_datetime(self):
         """Returns a datetime object representing the ETA or None if there is no data yet."""
-        if not self._data:
+        if not self._timing_data:
             return None
-        latest = sorted(self._data.items())[-1]
-        remaining = self.denominator - latest[0]
-        rate = self.rate
-        seconds_left = remaining / rate
-        return datetime.fromtimestamp(latest[1] + seconds_left)
+        return datetime.fromtimestamp(self._latest[1] + self.eta_seconds)
 
     @property
     def eta_seconds(self):
         """Returns the ETA in seconds or None if there is no data yet."""
-        if not self._data:
+        if not self._timing_data:
             return None
-        latest = sorted(self._data.items())[-1]
-        remaining = self.denominator - latest[0]
+        remaining = self.denominator - self._latest[0]
         rate = self.rate
         return remaining / rate
 
     @property
+    def numerator(self):
+        """Returns the latest numerator."""
+        if not self._timing_data:
+            return None
+        return self._latest[0]
+
+    @property
     def rate(self):
-        """Returns the rate (numerator units per second)."""
+        """Returns the rate (numerator units per second).
+
+        Calculating the linear regression (like a trend-line).
+        """
         return None  # TODO
 
 
