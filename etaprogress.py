@@ -25,44 +25,37 @@ class ETA(object):
         if denominator < 0:
             raise ValueError('denominator must be positive/absolute.')
         self.denominator = denominator
-        self.eta_epoch = None  # Estimated intercept of x=100. The 'y' in y = m * x + b.
-        self.rate = None  # Slope of the linear regression line. The 'm' in y = m * x + b.
-        self._latest = (None, None)  # Updated by set_numerator().
+        self.eta_epoch = None  # Estimated intercept of y=denominator. The 'x' in y = m * x + b.
+        self.rate = 0.0  # Slope of the linear regression line. The 'm' in y = m * x + b.
         self._now = time.time  # For testing.
-        self._timing_data = dict()  # Keys (x) are numerators, values (y) are time.time() (Unix epoch).
+        self._timing_data = list()  # List of tuples. First item in tuple (x) is time.time(), second (y) is numerator.
 
-    def set_numerator(self, numerator, timestamp=None, calculate=True):
+    def set_numerator(self, numerator, calculate=True):
         """Sets the new numerator (number of items done). Also cleans up timing data and performs ETA calculation.
-
-        This method may also be used to update the current numerator.
 
         Positional arguments:
         numerator -- the new numerator to add to the timing data.
 
         Keyword arguments:
-        timestamp -- optionally override the time the numerator changed. Defaults to right now.
         calculate -- calculate the ETA and rate by default.
         """
         # Validate
-        now = self._now()
-        if self._timing_data and numerator < self._latest[0]:
-            raise ValueError('cannot edit past numerators.')
-        if self._timing_data and timestamp is not None and timestamp < self._latest[1]:
-            raise ValueError('timestamp may not decrement (slope must be positive).')
-        if timestamp is not None and timestamp > now:
-            raise ValueError('timestamp must not be in the future.')
+        if self._timing_data and numerator < self._timing_data[-1][1]:
+            raise ValueError('numerator cannot decrement.')
 
         # Update data.
-        value = timestamp or now
-        self._latest = (numerator, value)
-        self._timing_data[numerator] = value
+        self._timing_data.append((self._now(), numerator))
+
+        # If done stop here.
+        if self.done:
+            return
 
         # Filter old data.
         if len(self._timing_data) > self.SCOPE_NUMBER_OF_ENTRIES:
-            self._timing_data = dict(sorted(self._timing_data.items())[-self.SCOPE_NUMBER_OF_ENTRIES:])
+            self._timing_data[:] = self._timing_data[-self.SCOPE_NUMBER_OF_ENTRIES:]
 
         # Calculate ETA and rate.
-        if calculate and len(self._timing_data) >= 2:
+        if calculate and self.started:
             self._calculate()
 
     def _calculate(self):
@@ -72,15 +65,14 @@ class ETA(object):
         http://en.wikipedia.org/wiki/Pearson_product-moment_correlation_coefficient
         """
         # Calculate means and standard deviations.
-        timing_data = sorted(self._timing_data.items())
-        mean_x = sum(i[0] for i in timing_data) / len(timing_data)
-        mean_y = sum(i[1] for i in timing_data) / len(timing_data)
-        std_x = sqrt(sum(pow(i[0] - mean_x, 2) for i in timing_data) / (len(timing_data) - 1))
-        std_y = sqrt(sum(pow(i[1] - mean_y, 2) for i in timing_data) / (len(timing_data) - 1))
+        mean_x = sum(i[0] for i in self._timing_data) / len(self._timing_data)
+        mean_y = sum(i[1] for i in self._timing_data) / len(self._timing_data)
+        std_x = sqrt(sum(pow(i[0] - mean_x, 2) for i in self._timing_data) / (len(self._timing_data) - 1))
+        std_y = sqrt(sum(pow(i[1] - mean_y, 2) for i in self._timing_data) / (len(self._timing_data) - 1))
 
         # Calculate coefficient.
         sum_xy, sum_sq_v_x, sum_sq_v_y = 0, 0, 0
-        for x, y in timing_data:
+        for x, y in self._timing_data:
             x -= mean_x
             y -= mean_y
             sum_xy += x * y
@@ -88,16 +80,18 @@ class ETA(object):
             sum_sq_v_y += pow(y, 2)
         pearson_r = sum_xy / sqrt(sum_sq_v_x * sum_sq_v_y)
 
-        # Calculate line. y = mx + b where m is the slope and b is the x-intercept.
+        # Calculate line. y = mx + b where m is the slope and b is the y-intercept.
+        y = self.denominator
         m = pearson_r * (std_y / std_x)
         b = mean_y - m * mean_x
+        x = (y - b) / m
         self.rate = m
-        self.eta_epoch = (m * 100) + b
+        self.eta_epoch = x
 
     @property
     def done(self):
         """Returns True if numerator == denominator."""
-        return self._latest[0] == self.denominator
+        return self.numerator == self.denominator
 
     @property
     def eta_datetime(self):
@@ -119,7 +113,17 @@ class ETA(object):
         """Returns the latest numerator."""
         if not self._timing_data:
             return 0
-        return self._latest[0]
+        return self._timing_data[-1][1]
+
+    @property
+    def stalled(self):
+        """Returns True if the rate is 0."""
+        return float(self.rate or 0) == 0.0
+
+    @property
+    def started(self):
+        """Returns True if there is enough data to calculate the rate."""
+        return len(self._timing_data) >= 2
 
 
 class ProgressBar(object):
