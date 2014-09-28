@@ -19,35 +19,19 @@ def test_linear_slope_2():
     assert 2.0 == eta.rate
 
 
-def test_cubic():
+def test_linear_transform():
     """Wolfram Alpha:
-
     x is the timestamp. y is the numerator. 120 is the denominator.
-
     linear fit {1.2, 22},{2.4, 58},{3.1, 102},{4.4, 118}
+
+    The closer we get to 100%, the more vertical shift/transform is applied to the line.
+    As we near the end we want the line to get closer to the last point on the graph.
+    This avoids having 99% with an ETA in the past.
     """
-    return  # TODO
     eta = ETA(120)
-    eta._timing_data = [
-        (1411940269.184025, 22),
-        (1411940269.753293, 58),
-        (1411940270.323016, 102),
-        (1411940270.891795, 118),
-    ]
+    eta._timing_data = [(1.2, 22), (2.4, 58), (3.1, 102), (4.4, 118)]
     getattr(eta, '_calculate')()
 
-    assert 50 == eta.eta_epoch
-    assert 2.0 == eta.rate
+    assert 4.4 < eta.eta_epoch < 4.6
+    assert 30 < eta.rate < 35
 
-
-
-
-"""
-TODO:
-
-1) Swap axis. Since x is always time.time(), maybe go back to a list of tuples?
-2) Eliminate custom timestamp in set_numerator(). _now() is already testable.
-3) Add .started and .stalled properties for convenience.
-4) Need those to mimic wget's moving <=> if not started.
-5) I think wget detects stalled when slope is 0, do the same. Replace eta with stalled.
-"""

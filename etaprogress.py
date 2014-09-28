@@ -6,6 +6,7 @@ https://pypi.python.org/pypi/etaprogress
 
 from __future__ import division
 from datetime import datetime
+from itertools import cycle
 from math import sqrt
 import time
 
@@ -80,13 +81,18 @@ class ETA(object):
             sum_sq_v_y += pow(y, 2)
         pearson_r = sum_xy / sqrt(sum_sq_v_x * sum_sq_v_y)
 
-        # Calculate line. y = mx + b where m is the slope and b is the y-intercept.
+        # Calculate regression line. y = mx + b where m is the slope and b is the y-intercept.
         y = self.denominator
         m = pearson_r * (std_y / std_x)
         b = mean_y - m * mean_x
         x = (y - b) / m
         self.rate = m
-        self.eta_epoch = x
+
+        # Calculate fitted line (transformed/shifted regression line horizontally).
+        fitted_b = self._timing_data[-1][1] - (m * self._timing_data[-1][0])
+        fitted_x = (y - fitted_b) / m
+        adjusted_x = ((fitted_x - x) * (self.numerator / self.denominator)) + x
+        self.eta_epoch = adjusted_x
 
     @property
     def done(self):
@@ -116,6 +122,11 @@ class ETA(object):
         return self._timing_data[-1][1]
 
     @property
+    def percent(self):
+        """Returns the percent as a float."""
+        return self.numerator / self.denominator * 100
+
+    @property
     def stalled(self):
         """Returns True if the rate is 0."""
         return float(self.rate or 0) == 0.0
@@ -127,8 +138,33 @@ class ETA(object):
 
 
 class ProgressBar(object):
-    """Builds a basic progress bar similar to the one in wget."""
+    """Progress bar object.
 
+    Looks like this:
+    100% (100/100) [#################################] eta 0:00:00 |
+    """
+
+    BAR_LEADING_CHAR = ''
+    BAR_MAIN_CHAR = '#'
+    BAR_UNKNOWN_CHAR = '#'
+    SPINNER_CHARS = ('/', '-', '\\', '|')
+    TEMPLATE = '{percent:3d}% ({numerator}/{denominator}) [{bar}] eta {eta} {spinner}'
+
+    def __init__(self, eta):
+        self.eta = eta
+        self.spinner = cycle(self.SPINNER_CHARS)
+
+    def __str__(self):
+        """Returns the filled-out progress bar. Also iterates the spinner."""
+        percent = int(self.eta.numerator / self.eta.denominator * 100)
+        numerator = self.eta.numerator
+        denominator = self.eta.denominator
+
+        return self.TEMPLATE.format(precent=percent)
+
+
+
+class ProgressBarWget(ProgressBar):
     BAR_LEADING_CHAR = '>'
     BAR_MAIN_CHAR = '='
     TEMPLATE = '{percent:3d}% [{bar}] {total} {rate}  eta {eta}'
