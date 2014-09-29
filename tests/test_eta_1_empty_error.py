@@ -1,36 +1,41 @@
 import pytest
 
-from etaprogress import ETA
+from etaprogress import eta
 
 
 def test_empty():
-    eta = ETA(50)
-    assert 50 == eta.denominator
-    assert eta.eta_epoch is None
-    assert 0.0 == eta.rate
-    assert eta.done is False
-    assert eta.eta_datetime is None
-    assert eta.eta_seconds is None
-    assert 0 == eta.numerator
-    assert eta.stalled is True
-    assert eta.started is False
+    eta_instance = eta.ETA(50)
+    assert 50 == eta_instance.denominator
+    assert eta_instance.eta_epoch is None
+    assert 0.0 == eta_instance.rate
+    assert 0 == eta_instance.numerator
+    assert eta_instance.stalled is True
+    assert eta_instance.started is False
+    assert eta_instance.undefined is False
+    assert eta_instance.done is False
+    assert eta_instance.eta_seconds is None
+    assert 0.0 == eta_instance.percent
 
 
-def test_error_denominator():
-    with pytest.raises(ValueError) as e:
-        ETA(0)
-    assert 'denominator may not be zero.' == str(e.value)
-
-    with pytest.raises(ValueError) as e:
-        ETA(-50)
-    assert 'denominator must be positive/absolute.' == str(e.value)
+def test_empty_undefined():
+    eta_instance = eta.ETA(0)
+    assert 0 == eta_instance.denominator
+    assert eta_instance.eta_epoch is None
+    assert 0.0 == eta_instance.rate
+    assert 0 == eta_instance.numerator
+    assert eta_instance.stalled is True
+    assert eta_instance.started is False
+    assert eta_instance.undefined is True
+    assert eta_instance.done is False
+    assert eta_instance.eta_seconds is None
+    assert eta_instance.percent is None
 
 
 def test_error_numerator():
-    eta = ETA(50)
-    eta._now = lambda: 1411868722.680839
-    eta.set_numerator(1)
+    eta_instance = eta.ETA(50)
+    eta._NOW = lambda: 1411868722.680839
+    eta_instance.set_numerator(1)
 
     with pytest.raises(ValueError) as e:
-        eta.set_numerator(0)
+        eta_instance.set_numerator(0)
     assert 'numerator cannot decrement.' == str(e.value)

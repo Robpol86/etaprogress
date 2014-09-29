@@ -1,4 +1,4 @@
-from etaprogress import ETA
+from etaprogress.eta import ETA
 
 
 def test_linear_slope_1():
@@ -35,3 +35,11 @@ def test_linear_transform():
     assert 4.4 < eta.eta_epoch < 4.6
     assert 30 < eta.rate < 35
 
+
+def test_linear_transform_undefined():
+    eta = ETA()
+    eta._timing_data = [(1.2, 22), (2.4, 58), (3.1, 102), (4.4, 118)]
+    getattr(eta, '_calculate')()
+
+    assert eta.eta_epoch is None
+    assert 30 < eta.rate < 35
