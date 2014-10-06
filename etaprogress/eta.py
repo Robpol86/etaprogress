@@ -52,7 +52,7 @@ class ETA(object):
     @property
     def undefined(self):
         """Returns True if there is no denominator."""
-        return self.denominator <= 0
+        return self.denominator is None or self.denominator <= 0
 
     @property
     def done(self):
