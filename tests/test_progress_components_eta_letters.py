@@ -22,7 +22,7 @@ def test():
 
 
 def test_leading_zero():
-    eta = EtaLetters(**dict(_EtaLetters__leading_zero=True))
+    eta = EtaLetters(leading_zero=True)
 
     assert '00s' == getattr(eta, '_EtaLetters__eta')(0)
     assert '09s' == getattr(eta, '_EtaLetters__eta')(9)
@@ -42,7 +42,7 @@ def test_leading_zero():
 
 
 def test_shortest():
-    eta = EtaLetters(**dict(_EtaLetters__shortest=True))
+    eta = EtaLetters(shortest=True)
 
     assert '0s' == getattr(eta, '_EtaLetters__eta')(0)
     assert '9s' == getattr(eta, '_EtaLetters__eta')(9)
@@ -62,7 +62,7 @@ def test_shortest():
 
 
 def test_shortest_and_leading_zero():
-    eta = EtaLetters(**dict(_EtaLetters__shortest=True, _EtaLetters__leading_zero=True))
+    eta = EtaLetters(shortest=True, leading_zero=True)
 
     assert '00s' == getattr(eta, '_EtaLetters__eta')(0)
     assert '09s' == getattr(eta, '_EtaLetters__eta')(9)

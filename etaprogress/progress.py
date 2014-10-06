@@ -36,11 +36,9 @@ class ProgressBar(Bar, EtaHMS, Spinner, BaseProgressBar):
         eta = ETA(denominator=denominator)
         self.eta = eta
         self.max_width = max_width
-
-        super(ProgressBar, self).__init__(**dict(
-            _Bar__undefined_animated=eta.undefined,
-            _EtaHMS__always_show_minutes=True,
-        ))
+        Bar.__init__(self, undefined_animated=eta.undefined)
+        EtaHMS.__init__(self, always_show_minutes=True)
+        Spinner.__init__(self)
 
     @property
     def fraction(self):
@@ -50,24 +48,31 @@ class ProgressBar(Bar, EtaHMS, Spinner, BaseProgressBar):
         return '{0}/{1}'.format(numerator, denominator)
 
     @property
+    def numerator(self):
+        """Returns the numerator with formatting."""
+        return locale.format('%d', self.eta.numerator, grouping=True)
+
+    @property
     def bar(self):
         """Generates and returns the progress bar (one-line string)."""
         template = self.TEMPLATE_UNDEFINED if self.eta.undefined else self.TEMPLATE
         values = dict(
-            percent=self.eta.percent,
-            numerator=self.eta.numerator,
+            percent=int(self.eta.percent),
+            numerator='',
             fraction='',
             bar='',
             eta='--:--',
             spinner=getattr(self, '_Spinner__spinner'),  # Apparently PyCharm doesn't support name mangling.
         )
 
-        # Fill in ETA and fraction.
+        # Fill in ETA, fraction, and numerator.
         seconds = self.eta.eta_seconds
         if not self.eta.undefined and seconds is not None:
             values['eta'] = getattr(self, '_EtaHMS__eta')(seconds)
         if not self.eta.undefined:
             values['fraction'] = self.fraction
+        else:
+            values['numerator'] = self.numerator
 
         # Fill in bar.
         max_bar_width = getattr(self, '_BaseProgressBar__get_remaining_width')(template, values)

@@ -5,12 +5,12 @@ from etaprogress.progress_components import Unit
 
 def test_errors():
     with pytest.raises(ValueError):
-        Unit(**dict(_Unit__non_rate_unit='dne'))
+        Unit(non_rate_unit='dne')
 
     with pytest.raises(ValueError):
-        Unit(**dict(_Unit__rate_unit='dne'))
+        Unit(rate_unit='dne')
 
-    unit = Unit(**dict(_Unit__non_rate_unit='bytes', _Unit__rate_unit='bytes'))
+    unit = Unit(non_rate_unit='bytes', rate_unit='bytes')
     getattr(unit, '_Unit__unit')(524288, unit='MiB')
     getattr(unit, '_Unit__unit')(524288, rate=True, unit='MiB/s')
     with pytest.raises(IndexError):
@@ -38,7 +38,7 @@ def test_default():
 
 
 def test_bits_one():
-    unit = Unit(**dict(_Unit__non_rate_unit='bits'))
+    unit = Unit(non_rate_unit='bits')
     assert (0, 'b', 'bps') == getattr(unit, '_Unit__unit')(0)
     assert (0, '', '/s') == getattr(unit, '_Unit__unit')(0, rate=True)
     assert (1, 'b', 'bps') == getattr(unit, '_Unit__unit')(1)
@@ -56,7 +56,7 @@ def test_bits_one():
 
 
 def test_bits_two():
-    unit = Unit(**dict(_Unit__rate_unit='bits'))
+    unit = Unit(rate_unit='bits')
     assert (0, '', '/s') == getattr(unit, '_Unit__unit')(0)
     assert (0, 'b', 'bps') == getattr(unit, '_Unit__unit')(0, rate=True)
     assert (1, '', '/s') == getattr(unit, '_Unit__unit')(1)
@@ -74,7 +74,7 @@ def test_bits_two():
 
 
 def test_bits_three():
-    unit = Unit(**dict(_Unit__non_rate_unit='bits', _Unit__rate_unit='bits'))
+    unit = Unit(non_rate_unit='bits', rate_unit='bits')
     assert (0, 'b', 'bps') == getattr(unit, '_Unit__unit')(0)
     assert (0, 'b', 'bps') == getattr(unit, '_Unit__unit')(0, rate=True)
     assert (1, 'b', 'bps') == getattr(unit, '_Unit__unit')(1)
@@ -92,7 +92,7 @@ def test_bits_three():
 
 
 def test_bytes():
-    unit = Unit(**dict(_Unit__non_rate_unit='bytes', _Unit__rate_unit='bytes'))
+    unit = Unit(non_rate_unit='bytes', rate_unit='bytes')
     assert (0, 'B', 'B/s') == getattr(unit, '_Unit__unit')(0)
     assert (0, 'B', 'B/s') == getattr(unit, '_Unit__unit')(0, rate=True)
     assert (1, 'B', 'B/s') == getattr(unit, '_Unit__unit')(1)

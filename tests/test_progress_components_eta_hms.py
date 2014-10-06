@@ -22,7 +22,7 @@ def test():
 
 
 def test_always_show_minutes():
-    eta = EtaHMS(**dict(_EtaHMS__always_show_minutes=True))
+    eta = EtaHMS(always_show_minutes=True)
 
     assert '00:00' == getattr(eta, '_EtaHMS__eta')(0)
     assert '00:09' == getattr(eta, '_EtaHMS__eta')(9)
@@ -42,7 +42,7 @@ def test_always_show_minutes():
 
 
 def test_always_show_hours():
-    eta = EtaHMS(**dict(_EtaHMS__always_show_hours=True))
+    eta = EtaHMS(always_show_hours=True)
 
     assert '0:00:00' == getattr(eta, '_EtaHMS__eta')(0)
     assert '0:00:09' == getattr(eta, '_EtaHMS__eta')(9)
@@ -65,7 +65,7 @@ def test_always_show_hours():
 
 
 def test_hours_leading_zero():
-    eta = EtaHMS(**dict(_EtaHMS__hours_leading_zero=True))
+    eta = EtaHMS(hours_leading_zero=True)
 
     assert '00' == getattr(eta, '_EtaHMS__eta')(0)
     assert '09' == getattr(eta, '_EtaHMS__eta')(9)
@@ -85,7 +85,7 @@ def test_hours_leading_zero():
 
 
 def test_always_show_minutes_hours_leading_zero():
-    eta = EtaHMS(**dict(_EtaHMS__hours_leading_zero=True, _EtaHMS__always_show_minutes=True))
+    eta = EtaHMS(hours_leading_zero=True, always_show_minutes=True)
 
     assert '00:00' == getattr(eta, '_EtaHMS__eta')(0)
     assert '00:09' == getattr(eta, '_EtaHMS__eta')(9)
@@ -105,7 +105,7 @@ def test_always_show_minutes_hours_leading_zero():
 
 
 def test_always_show_hours_hours_leading_zero():
-    eta = EtaHMS(**dict(_EtaHMS__hours_leading_zero=True, _EtaHMS__always_show_hours=True))
+    eta = EtaHMS(hours_leading_zero=True, always_show_hours=True)
 
     assert '00:00:00' == getattr(eta, '_EtaHMS__eta')(0)
     assert '00:00:09' == getattr(eta, '_EtaHMS__eta')(9)

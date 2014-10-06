@@ -67,7 +67,7 @@ class ETA(object):
     @property
     def percent(self):
         """Returns the percent as a float."""
-        return None if self.undefined else self.numerator / self.denominator * 100
+        return 0.0 if self.undefined else self.numerator / self.denominator * 100
 
     def set_numerator(self, numerator, calculate=True):
         """Sets the new numerator (number of items done). Also cleans up timing data and performs ETA calculation.
@@ -83,7 +83,11 @@ class ETA(object):
             raise ValueError('numerator cannot decrement.')
 
         # Update data.
-        self._timing_data.append((_NOW(), numerator))
+        now = _NOW()
+        if self._timing_data and now == self._timing_data[-1][0]:
+            self._timing_data[-1] = (now, numerator)  # Overwrite.
+        else:
+            self._timing_data.append((now, numerator))
 
         # If done stop here.
         if self.done:

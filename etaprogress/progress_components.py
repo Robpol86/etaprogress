@@ -27,8 +27,7 @@ class Spinner(object):
 
     __CHARS = ('/', '-', '\\', '|')
 
-    def __init__(self, **_):
-        super(Spinner, self).__init__()
+    def __init__(self):
         self.__iter = cycle(self.__CHARS)
 
     @property
@@ -63,19 +62,18 @@ class Unit(object):
         (1, 'B', 'B/s'),
     )
 
-    def __init__(self, __non_rate_unit='', __rate_unit='', **_):
-        super(Unit, self).__init__()
+    def __init__(self, non_rate_unit='', rate_unit=''):
         mapping = {
             '': self.__DEFAULT,
             'bits': self.__BITS,
             'bytes': self.__BYTES,
         }
-        if __non_rate_unit not in mapping:
+        if non_rate_unit not in mapping:
             raise ValueError('Invalid unit, must be: {0}'.format(', '.join(mapping)))
-        if __rate_unit not in mapping:
+        if rate_unit not in mapping:
             raise ValueError('Invalid rate unit, must be: {0}'.format(', '.join(mapping)))
-        self.__non_rate_unit = mapping[__non_rate_unit]
-        self.__rate_unit = mapping[__rate_unit]
+        self.__non_rate_unit = mapping[non_rate_unit]
+        self.__rate_unit = mapping[rate_unit]
 
     def __unit(self, value, rate=False, unit=None):
         """Converts `value` into another unit.
@@ -121,10 +119,9 @@ class EtaLetters(object):
     __CHARS_DAY = 'd'
     __CHARS_WEEK = 'w'
 
-    def __init__(self, __shortest=False, __leading_zero=False, **_):
-        super(EtaLetters, self).__init__()
-        self.__shortest = __shortest
-        self.__leading_zero = __leading_zero
+    def __init__(self, shortest=False, leading_zero=False):
+        self.__shortest = shortest
+        self.__leading_zero = leading_zero
 
     def __eta(self, seconds):
         """Returns a string representing a human-readable ETA.
@@ -155,7 +152,7 @@ class EtaLetters(object):
         values['second'] = seconds
 
         # Map to characters.
-        leading = lambda x: ('{0:02d}' if self.__leading_zero else '{0}').format(x)
+        leading = lambda x: ('{0:02.0f}' if self.__leading_zero else '{0}').format(x)
         mapped = (
             (self.__CHARS_WEEK, str(values['week'] or '')),
             (self.__CHARS_DAY, str(values['day'] or '')),
@@ -178,11 +175,10 @@ class EtaHMS(object):
     __hours_leading_zero -- show 01:00:00 instead of 1:00:00.
     """
 
-    def __init__(self, __always_show_hours=False, __always_show_minutes=False, __hours_leading_zero=False, **_):
-        super(EtaHMS, self).__init__()
-        self.__always_show_hours = __always_show_hours
-        self.__always_show_minutes = __always_show_minutes
-        self.__hours_leading_zero = __hours_leading_zero
+    def __init__(self, always_show_hours=False, always_show_minutes=False, hours_leading_zero=False):
+        self.__always_show_hours = always_show_hours
+        self.__always_show_minutes = always_show_minutes
+        self.__hours_leading_zero = hours_leading_zero
 
     def __eta(self, seconds):
         """Returns a string representing a human-readable ETA.
@@ -196,13 +192,13 @@ class EtaHMS(object):
         values = dict(hour=0, minute=0, second=0)
         if seconds >= 3600 or self.__always_show_hours:
             if self.__hours_leading_zero:
-                template = '{hour:02d}:{minute:02d}:{second:02d}'
+                template = '{hour:02.0f}:{minute:02.0f}:{second:02.0f}'
             else:
-                template = '{hour}:{minute:02d}:{second:02d}'
+                template = '{hour}:{minute:02.0f}:{second:02.0f}'
         elif seconds >= 60 or self.__always_show_minutes:
-            template = '{minute:02d}:{second:02d}'
+            template = '{minute:02.0f}:{second:02.0f}'
         else:
-            template = '{second:02d}'
+            template = '{second:02.0f}'
 
         # Split up seconds into other units.
         if seconds >= 3600:
@@ -236,11 +232,10 @@ class Bar(object):
     __CHAR_UNIT_HALF = ' '
     __CHAR_UNIT_EMPTY = ' '
 
-    def __init__(self, __with_leading=False, __undefined_animated=False, __undefined_empty=False, **_):
-        super(Bar, self).__init__()
-        self.__with_leading = __with_leading
-        self.__undefined_animated = __undefined_animated
-        self.__undefined_empty = __undefined_empty
+    def __init__(self, with_leading=False, undefined_animated=False, undefined_empty=False):
+        self.__with_leading = with_leading
+        self.__undefined_animated = undefined_animated
+        self.__undefined_empty = undefined_empty
         self.__undefined_animated_pos_addend = (0, 1)
 
     def __bar(self, width, percent=None):

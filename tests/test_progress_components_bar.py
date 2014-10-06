@@ -17,7 +17,7 @@ def test_errors():
 
 
 def test_undefined_empty():
-    bar = Bar(**dict(_Bar__undefined_empty=True))
+    bar = Bar(undefined_empty=True)
 
     assert '[        ]' == getattr(bar, '_Bar__bar')(10)
     assert '[        ]' == getattr(bar, '_Bar__bar')(10, 0.1)
@@ -25,7 +25,7 @@ def test_undefined_empty():
 
 
 def test_undefined_animated():
-    bar = Bar(**dict(_Bar__undefined_animated=True))
+    bar = Bar(undefined_animated=True)
 
     assert '[?       ]' == getattr(bar, '_Bar__bar')(10)
     assert '[ ?      ]' == getattr(bar, '_Bar__bar')(10, 0.1)
@@ -48,7 +48,7 @@ def test_undefined_animated():
 
 
 def test_undefined_animated_resize():
-    bar = Bar(**dict(_Bar__undefined_animated=True))
+    bar = Bar(undefined_animated=True)
 
     assert '[?       ]' == getattr(bar, '_Bar__bar')(10)
     assert '[ ?      ]' == getattr(bar, '_Bar__bar')(10)
@@ -62,7 +62,7 @@ def test_undefined_animated_resize():
 
 
 def test_undefined_animated_large():
-    bar = Bar(**dict(_Bar__undefined_animated=True))
+    bar = Bar(undefined_animated=True)
     bar._Bar__CHARS_LEFT_BORDER = ' ['
     bar._Bar__CHARS_RIGHT_BORDER = '] '
     bar._Bar__CHARS_UNDEFINED_ANIMATED = '<?>'
@@ -79,7 +79,7 @@ def test_undefined_animated_large():
 
 
 def test_defined_leading():
-    bar = Bar(**dict(_Bar__with_leading=True))
+    bar = Bar(with_leading=True)
     bar._Bar__CHAR_UNIT_LEADING = '>'
     bar._Bar__CHAR_UNIT_FULL = '='
     bar._Bar__CHAR_UNIT_HALF = '-'
