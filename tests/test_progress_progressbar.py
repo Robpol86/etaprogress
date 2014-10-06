@@ -61,6 +61,28 @@ def test_defined():
     assert '100% (2,000/2,000) [#######] eta 00:00 -' == progress_bar.bar
 
 
+def test_defined_hour():
+    progress_bar = ProgressBar(2000)
+
+    assert '  0% (    0/2,000) [       ] eta --:-- /' == progress_bar.bar
+
+    eta._NOW = lambda: 1411868722.0
+    progress_bar.eta.set_numerator(1)
+    assert '  0% (    1/2,000) [       ] eta --:-- -' == progress_bar.bar
+
+    eta._NOW = lambda: 1411868724.0
+    progress_bar.eta.set_numerator(2)
+    assert '  0% (    2/2,000) [     ] eta 1:06:36 \\' == progress_bar.bar
+
+
+def test_defined_wont_fit():
+    progress_bar = ProgressBar(2000, max_width=33)
+    assert '  0% (    0/2,000) [] eta --:-- /' == progress_bar.bar
+
+    progress_bar = ProgressBar(2000, max_width=30)
+    assert '  0% (    0/2,000) [] eta --:-- /' == progress_bar.bar
+
+
 def test_defined_long():
     progress_bar = ProgressBar(20)
 
