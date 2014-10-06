@@ -292,14 +292,19 @@ class BaseProgressBar(object):
     """."""
 
     @staticmethod
-    def __get_remaining_width(template, values):
+    def __get_remaining_width(template, values, max_terminal_width):
         """Calculates how much space is available for the progress bar itself.
 
         Positional arguments:
         template -- the string template to fill in.
         values -- the values to apply to the template.
+        max_terminal_width -- limit maximum overall width. None disables limit.
 
         Returns:
         Number of characters available in the current terminal width.
         """
-        return terminal_width() - len(template.format(**values))
+        if max_terminal_width is not None:
+            available_width = min(terminal_width(), max_terminal_width)
+        else:
+            available_width = terminal_width()
+        return available_width - len(template.format(**values))

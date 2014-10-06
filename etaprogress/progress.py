@@ -75,8 +75,7 @@ class ProgressBar(Bar, EtaHMS, Spinner, BaseProgressBar):
             values['numerator'] = self.numerator
 
         # Fill in bar.
-        max_bar_width = getattr(self, '_BaseProgressBar__get_remaining_width')(template, values)
-        width = max_bar_width if self.max_width is None else min(self.max_width, max_bar_width)
+        width = getattr(self, '_BaseProgressBar__get_remaining_width')(template, values, self.max_width)
         values['bar'] = getattr(self, '_Bar__bar')(width, self.eta.percent)
         return template.format(**values)
 

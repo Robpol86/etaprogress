@@ -6,8 +6,8 @@ from etaprogress.progress import ProgressBar
 
 def test_undefined():
     locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
-    progress_components.DEFAULT_TERMINAL_WIDTH = 30
-    progress_bar = ProgressBar(None)
+    progress_components.DEFAULT_TERMINAL_WIDTH = 40
+    progress_bar = ProgressBar(None, max_width=30)
 
     assert '0 [?             ] eta --:-- /' == progress_bar.bar
     assert '0 [ ?            ] eta --:-- -' == progress_bar.bar
@@ -29,7 +29,6 @@ def test_undefined():
 
 
 def test_defined():
-    progress_components.DEFAULT_TERMINAL_WIDTH = 40
     progress_bar = ProgressBar(2000)
 
     assert '  0% (    0/2,000) [       ] eta --:-- /' == progress_bar.bar
