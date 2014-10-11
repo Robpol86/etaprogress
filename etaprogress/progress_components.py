@@ -22,6 +22,86 @@ def terminal_width():
         return int(DEFAULT_TERMINAL_WIDTH)
 
 
+class UnitBit(object):
+    """Converts bits into other units such as kilobits, megabits, etc."""
+
+    def __init__(self, value):
+        self._value = value
+
+    @property
+    def b(self):
+        return self._value
+
+    @property
+    def kb(self):
+        return self._value / 1000.0
+
+    @property
+    def mb(self):
+        return self._value / 1000000.0
+
+    @property
+    def gb(self):
+        return self._value / 1000000000.0
+
+    @property
+    def tb(self):
+        return self._value / 1000000000000.0
+
+    @property
+    def auto(self):
+        if self._value >= 1000000000000:
+            return self.tb, 'tb'
+        if self._value >= 1000000000:
+            return self.gb, 'gb'
+        if self._value >= 1000000:
+            return self.mb, 'mb'
+        if self._value >= 1000:
+            return self.kb, 'kb'
+        else:
+            return self.b, 'b'
+
+
+class UnitByte(object):
+    """Converts bytes into other units such as kibibytes (like kilobytes, 1 * 1024)."""
+
+    def __init__(self, value):
+        self._value = value
+
+    @property
+    def B(self):
+        return self._value
+
+    @property
+    def KiB(self):
+        return self._value / 1024.0
+
+    @property
+    def MiB(self):
+        return self._value / 1048576.0
+
+    @property
+    def GiB(self):
+        return self._value / 1073741824.0
+
+    @property
+    def TiB(self):
+        return self._value / 1099511627776.0
+
+    @property
+    def auto(self):
+        if self._value >= 1000000000000:
+            return self.TiB, 'TiB'
+        if self._value >= 1000000000:
+            return self.GiB, 'GiB'
+        if self._value >= 1000000:
+            return self.MiB, 'MiB'
+        if self._value >= 1000:
+            return self.KiB, 'KiB'
+        else:
+            return self.B, 'B'
+
+
 class Spinner(object):
     """Holds logic for 'spinner' character."""
 
@@ -34,75 +114,6 @@ class Spinner(object):
     def __spinner(self):
         """Returns the spinner character. Every time this property is called a new character is returned."""
         return next(self.__iter)
-
-
-class Unit(object):
-    """Handles conversion from one unit (e.g. bytes) to another (e.g. gigabytes).
-
-    Instance variables:
-    __non_rate_unit -- dict of units and conversions for non-rate values.
-    __rate_unit -- dict of units and conversions for rate values.
-    """
-
-    __DEFAULT = (
-        (1, '', '/s'),
-    )
-    __BITS = (
-        (1000000000000, 'tb', 'tbps'),
-        (1000000000, 'gb', 'gbps'),
-        (1000000, 'mb', 'mbps'),
-        (1000, 'kb', 'kbps'),
-        (1, 'b', 'bps'),
-    )
-    __BYTES = (
-        (1099511627776, 'TiB', 'TiB/s'),
-        (1073741824, 'GiB', 'GiB/s'),
-        (1048576, 'MiB', 'MiB/s'),
-        (1024, 'KiB', 'KiB/s'),
-        (1, 'B', 'B/s'),
-    )
-
-    def __init__(self, non_rate_unit='', rate_unit=''):
-        mapping = {
-            '': self.__DEFAULT,
-            'bits': self.__BITS,
-            'bytes': self.__BYTES,
-        }
-        if non_rate_unit not in mapping:
-            raise ValueError('Invalid unit, must be: {0}'.format(', '.join(mapping)))
-        if rate_unit not in mapping:
-            raise ValueError('Invalid rate unit, must be: {0}'.format(', '.join(mapping)))
-        self.__non_rate_unit = mapping[non_rate_unit]
-        self.__rate_unit = mapping[rate_unit]
-
-    def __unit(self, value, rate=False, unit=None):
-        """Converts `value` into another unit.
-
-        Positional arguments:
-        value -- the dividend in the formula.
-
-        Keyword arguments:
-        rate -- choose the rate units instead of non-rate (e.g. mbps instead of mb).
-        unit -- automatic if None, override otherwise.
-
-        Returns:
-        Tuple of the converted value, the non-rate unit string, and the rate unit string.
-        """
-        unit_mapping = self.__rate_unit if rate else self.__non_rate_unit
-
-        # Handle non-automatic unit.
-        if unit is not None:
-            selected = [r for r in unit_mapping if unit == r[2 if rate else 1]][0]
-            return (value / selected[0]), selected[1], selected[2]
-
-        # Handle automatic unit.
-        for divisor, unit_str, unit_rate_str in unit_mapping:
-            if divisor > value:
-                continue
-            return (value / divisor), unit_str, unit_rate_str
-
-        # Handle 1 or 0 values.
-        return (value / unit_mapping[-1][0]), unit_mapping[-1][1], unit_mapping[-1][2]
 
 
 class EtaLetters(object):

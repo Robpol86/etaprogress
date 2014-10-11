@@ -5,11 +5,12 @@ https://pypi.python.org/pypi/etaprogress
 """
 
 from __future__ import division
+from decimal import Decimal, ROUND_DOWN
 from itertools import cycle
 import locale
 
 from etaprogress.eta import ETA
-from etaprogress.progress_components import Bar, BaseProgressBar, EtaHMS, Spinner
+from etaprogress.progress_components import Bar, BaseProgressBar, EtaHMS, Spinner, UnitBit, UnitByte
 
 
 class ProgressBar(Bar, EtaHMS, Spinner, BaseProgressBar):
@@ -80,115 +81,66 @@ class ProgressBar(Bar, EtaHMS, Spinner, BaseProgressBar):
         return template.format(**values)
 
 
-# Everything below this line is incomplete.
-
-
 class ProgressBarBits(ProgressBar):
-    pass
+    """Draw a progress bar showing the ETA, percentage, done/total items, a spinner, and units in bits.
+
+    Looks like one of these:
+     90% ( 90.00/100.00 kb) [######################   ] eta 1:00:00 \
+    100% (100.00/100.00 kb) [########################  ] eta  00:00 |
+    100.00 kb [     ?                                   ] eta --:-- /
+    100% (100.00/100.00 kb) [##########################] eta  00:00 |
+    100.00 kb [                 ?                       ] eta --:-- /
+    """
+
+    def __init__(self, denominator, max_width=None):
+        super(ProgressBarBits, self).__init__(denominator, max_width)
+        self._unit_class = UnitBit
+
+    @property
+    def fraction(self):
+        """Returns the fraction with additional whitespace."""
+        # Determine denominator and its unit.
+        unit_denominator, unit = self._unit_class(self.eta.denominator).auto
+        formatter = '%d' if unit_denominator == self.eta.denominator else '%0.2f'
+        denominator = locale.format(formatter, unit_denominator, grouping=True)
+        max_len = len(denominator) if unit_denominator == self.eta.denominator else 8
+
+        # Determine numerator.
+        unit_numerator = getattr(self._unit_class(self.eta.numerator), unit)
+        if self.eta.done:
+            rounded_numerator = unit_numerator
+        else:
+            rounded_numerator = float(Decimal(unit_numerator).quantize(Decimal('.01'), rounding=ROUND_DOWN))
+        numerator = locale.format(formatter, rounded_numerator, grouping=True).rjust(max_len)
+
+        return '{0}/{1} {2}'.format(numerator, denominator, unit)
+
+    @property
+    def numerator(self):
+        """Returns the numerator with formatting."""
+        unit_numerator, unit = self._unit_class(self.eta.numerator).auto
+        formatter = '%d' if unit_numerator == self.eta.numerator else '%0.2f'
+        numerator = locale.format(formatter, unit_numerator, grouping=True)
+        return '{0} {1}'.format(numerator, unit)
 
 
 class ProgressBarBytes(ProgressBarBits):
-    pass
-
-
-class _BaseBar(object):
-    """Base class for drawing a progress bar.
+    """Draw a progress bar showing the ETA, percentage, done/total items, a spinner, and units in bytes.
 
     Looks like one of these:
-     90% [###############################  ]  1s left
-    100% [#################################]  0s left
-      0% [                                 ] 30m left
-    1,282 [                                ]  no eta
-    """
-    pass
-
-
-
-class ProgressBar2(object):
-    """Progress bar object.
-
-    Looks like one of these:
-     90% ( 90/100 KiB) [###############################  ]  - stalled - \
-    100% (100/100 KiB) [#################################] eta  0:00:00 |
-    100 KiB [     ?                                      ] eta --:--:-- /
-    100% (100/100) [#####################################] eta  0:00:00 |
-    100 [                        ?                       ] eta --:--:-- /
+     90% ( 90.00/100.00 KiB) [######################   ] eta 1:00:00 \
+    100% (100.00/100.00 KiB) [########################  ] eta  00:00 |
+    100.00 KiB [     ?                                   ] eta --:-- /
+    100% (100.00/100.00 KiB) [##########################] eta  00:00 |
+    100.00 KiB [                 ?                       ] eta --:-- /
     """
 
-    TEMPLATE = '{percent:3d}% {fraction} [{bar}] {eta} {spinner}'
-    TEMPLATE_UNDEFINED = '{numerator} [{bar}] eta --:-- {spinner}'
+    def __init__(self, denominator, max_width=None):
+        super(ProgressBarBits, self).__init__(denominator, max_width)
+        self._unit_class = UnitByte
 
-    def __init__(self, eta_instance, max_width=120, unit=None):
-        self.eta_instance = eta_instance
-        self.max_width = max_width
-        self.min_width = 5
-        self.spinner = cycle(self.SPINNER_CHARS)
-        self.unit = unit or {'': 1}
 
-    def __str__(self):
-        return self.build_progress_bar()
-
-    def displayed_eta(self):
-        """Converts number of seconds remaining into mm:ss, h:mm:ss, or hh:mm:ss."""
-        seconds = int(self.eta.eta_seconds)
-        if not self.eta.started or seconds is None:
-            return self.CHAR_ETA_DASHED
-        if self.eta.stalled:
-            return self.CHAR_ETA_STALLED
-
-        hours, minutes = 0, 0
-        if seconds > 3600:
-            hours = int(seconds / 3600)
-            seconds -= hours * 3600
-        if seconds > 60:
-            minutes = int(seconds / 60)
-            seconds -= minutes * 60
-
-        return self.CHAR_ETA.format(hours, minutes, seconds)
-
-    def displayed_fraction(self):
-        """Returns the fraction to display when the eta is not undefined."""
-        if self.unit:
-            return '({0}/{1})'.format(self.eta.numerator, self.eta.denominator)
-        else:
-            return '({0}/{1} {2})'.format(self.eta.numerator, self.eta.denominator, self.unit)
-
-    def infer_info(self):
-        """Infer information about the progress bar.
-
-        Returns:
-        Tuple, first item is the formatted string with {bar} left. Second item is available space for the bar.
-        """
-        answers = dict(
-            percent=self.eta.percent,
-            fraction=None,
-            numerator=None,
-            bar='',
-            eta=None,
-            spinner=next(self.spinner),
-        )
-
-        if self.eta.undefined:
-            template = self.TEMPLATE_UNDEFINED
-            answers['numerator'] = '{} {}'.format(self.eta.numerator, self.unit) if self.unit else self.eta.numerator
-        else:
-            template = self.TEMPLATE
-            answers['fraction'] = self.displayed_fraction()
-            answers['eta'] = self.displayed_eta()
-
-        available_width = 0 - len(template.format(**answers))
-        answers['bar'] = '{bar}'
-        return template.format(**answers), available_width
-
-    def build_progress_bar(self):
-        """Builds the progress bar to be passed to self.__str__().
-
-        Returns:
-        The completed progress bar (string).
-        """
-        proto_template, available_width = self.infer_info()
-        width = max(min(available_width, self.max_width), self.min_width)
-        # TODO
+# Everything below this line is incomplete.
 
 
 class ProgressBarWget(ProgressBar):
