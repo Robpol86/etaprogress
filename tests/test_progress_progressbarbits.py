@@ -1,11 +1,17 @@
 import locale
 
+import pytest
+
 from etaprogress import eta, progress_components
 from etaprogress.progress import ProgressBarBits
 
 
-def test_undefined():
+@pytest.fixture(autouse=True, scope='module')
+def define_locale():
     locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
+
+
+def test_undefined():
     progress_components.DEFAULT_TERMINAL_WIDTH = 50
     progress_bar = ProgressBarBits(None, max_width=30)
 

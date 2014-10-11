@@ -6,7 +6,6 @@ https://pypi.python.org/pypi/etaprogress
 
 from __future__ import division
 from decimal import Decimal, ROUND_DOWN
-from itertools import cycle
 import locale
 
 from etaprogress.eta import ETA
@@ -110,7 +109,7 @@ class ProgressBarBits(ProgressBar):
         if self.eta.done:
             rounded_numerator = unit_numerator
         else:
-            rounded_numerator = float(Decimal(unit_numerator).quantize(Decimal('.01'), rounding=ROUND_DOWN))
+            rounded_numerator = float(Decimal(str(unit_numerator)).quantize(Decimal('.01'), rounding=ROUND_DOWN))
         numerator = locale.format(formatter, rounded_numerator, grouping=True).rjust(max_len)
 
         return '{0}/{1} {2}'.format(numerator, denominator, unit)

@@ -1,11 +1,17 @@
 import locale
 
+import pytest
+
 from etaprogress import eta, progress_components
 from etaprogress.progress import ProgressBarBytes
 
 
-def test_undefined():
+@pytest.fixture(autouse=True, scope='module')
+def define_locale():
     locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
+
+
+def test_undefined():
     progress_components.DEFAULT_TERMINAL_WIDTH = 50
     progress_bar = ProgressBarBytes(None, max_width=30)
 
@@ -64,15 +70,15 @@ def test_defined():
 def test_defined_rounded():
     progress_bar = ProgressBarBytes(1023)
 
-    assert '  0% (    0.00/1.00 KiB) [           ] eta --:-- /' == progress_bar.bar
+    assert '  0% (    0/1,023 B) [               ] eta --:-- /' == progress_bar.bar
 
     eta._NOW = lambda: 1411868724.0
     progress_bar.eta.set_numerator(1022)
-    assert ' 99% (    0.99/1.00 KiB) [########## ] eta --:-- -' == progress_bar.bar
+    assert ' 99% (1,022/1,023 B) [############## ] eta --:-- -' == progress_bar.bar
 
     eta._NOW = lambda: 1411868724.5
     progress_bar.eta.set_numerator(1023)
-    assert '100% (    1.00/1.00 KiB) [###########] eta --:-- \\' == progress_bar.bar
+    assert '100% (1,023/1,023 B) [###############] eta --:-- \\' == progress_bar.bar
 
 
 def test_defined_hour():

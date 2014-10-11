@@ -90,13 +90,13 @@ class UnitByte(object):
 
     @property
     def auto(self):
-        if self._value >= 1000000000000:
+        if self._value >= 1099511627776:
             return self.TiB, 'TiB'
-        if self._value >= 1000000000:
+        if self._value >= 1073741824:
             return self.GiB, 'GiB'
-        if self._value >= 1000000:
+        if self._value >= 1048576:
             return self.MiB, 'MiB'
-        if self._value >= 1000:
+        if self._value >= 1024:
             return self.KiB, 'KiB'
         else:
             return self.B, 'B'
