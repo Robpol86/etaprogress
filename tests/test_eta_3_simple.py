@@ -47,6 +47,7 @@ def test_two():
 
 
 def test_five():
+    eta._NOW = lambda: 1411868720.680839
     eta_instance = eta.ETA(5)
 
     eta._NOW = lambda: 1411868721.680839
@@ -75,7 +76,7 @@ def test_five():
     assert eta_instance.done is False
     assert 3.0 == eta_instance.eta_seconds
     assert 40.0 == eta_instance.percent
-    assert 1.0 == eta_instance.elapsed
+    assert 2.0 == eta_instance.elapsed
 
     eta._NOW = lambda: 1411868723.680839
     eta_instance.set_numerator(3)
@@ -89,7 +90,7 @@ def test_five():
     assert eta_instance.done is False
     assert 2.0 == eta_instance.eta_seconds
     assert 60.0 == eta_instance.percent
-    assert 2.0 == eta_instance.elapsed
+    assert 3.0 == eta_instance.elapsed
 
     eta._NOW = lambda: 1411868725.680839
     eta_instance.set_numerator(5)
@@ -99,4 +100,4 @@ def test_five():
     assert eta_instance.undefined is False
     assert eta_instance.done is True
     assert 100.0 == eta_instance.percent
-    assert 4.0 == eta_instance.elapsed
+    assert 5.0 == eta_instance.elapsed

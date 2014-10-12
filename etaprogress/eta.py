@@ -32,7 +32,7 @@ class ETA(object):
         self.rate = 0.0
         self.scope = scope
 
-        self._start_time = None
+        self._start_time = _NOW()
         self._timing_data = list()  # List of tuples. First item in tuple (x) is time.time(), second (y) is numerator.
 
     @property
@@ -98,8 +98,6 @@ class ETA(object):
 
         # Update data.
         now = _NOW()
-        if not self._timing_data or self._start_time is None:
-            self._start_time = now
         if self._timing_data and now == self._timing_data[-1][0]:
             self._timing_data[-1] = (now, numerator)  # Overwrite.
         else:
