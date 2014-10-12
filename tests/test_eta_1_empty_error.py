@@ -15,6 +15,8 @@ def test_empty():
     assert eta_instance.done is False
     assert eta_instance.eta_seconds is None
     assert 0.0 == eta_instance.percent
+    assert 0.0 == eta_instance.elapsed
+    assert 0.0 == eta_instance.rate_overall
 
 
 def test_empty_undefined():
@@ -29,6 +31,8 @@ def test_empty_undefined():
     assert eta_instance.done is False
     assert eta_instance.eta_seconds is None
     assert 0.0 == eta_instance.percent
+    assert 0.0 == eta_instance.elapsed
+    assert 0.0 == eta_instance.rate_overall
 
     eta_instance = eta.ETA(None)
     assert eta_instance.denominator is None
@@ -41,6 +45,8 @@ def test_empty_undefined():
     assert eta_instance.done is False
     assert eta_instance.eta_seconds is None
     assert 0.0 == eta_instance.percent
+    assert 0.0 == eta_instance.elapsed
+    assert 0.0 == eta_instance.rate_overall
 
 
 def test_error_numerator():

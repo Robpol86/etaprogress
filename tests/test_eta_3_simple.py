@@ -16,6 +16,7 @@ def test_one():
     assert eta_instance.done is True
     assert eta_instance.eta_seconds is None
     assert 100.0 == eta_instance.percent
+    assert 0.0 == eta_instance.elapsed
 
 
 def test_two():
@@ -33,6 +34,7 @@ def test_two():
     assert eta_instance.done is False
     assert eta_instance.eta_seconds is None
     assert 50.0 == eta_instance.percent
+    assert 0.0 == eta_instance.elapsed
 
     eta._NOW = lambda: 1411868722.680839
     eta_instance.set_numerator(2)
@@ -59,6 +61,7 @@ def test_five():
     assert eta_instance.done is False
     assert eta_instance.eta_seconds is None
     assert 20.0 == eta_instance.percent
+    assert 0.0 == eta_instance.elapsed
 
     eta._NOW = lambda: 1411868722.680839
     eta_instance.set_numerator(2)
@@ -72,6 +75,7 @@ def test_five():
     assert eta_instance.done is False
     assert 3.0 == eta_instance.eta_seconds
     assert 40.0 == eta_instance.percent
+    assert 1.0 == eta_instance.elapsed
 
     eta._NOW = lambda: 1411868723.680839
     eta_instance.set_numerator(3)
@@ -85,6 +89,7 @@ def test_five():
     assert eta_instance.done is False
     assert 2.0 == eta_instance.eta_seconds
     assert 60.0 == eta_instance.percent
+    assert 2.0 == eta_instance.elapsed
 
     eta._NOW = lambda: 1411868725.680839
     eta_instance.set_numerator(5)
@@ -94,3 +99,4 @@ def test_five():
     assert eta_instance.undefined is False
     assert eta_instance.done is True
     assert 100.0 == eta_instance.percent
+    assert 4.0 == eta_instance.elapsed

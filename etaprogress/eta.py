@@ -32,6 +32,7 @@ class ETA(object):
         self.rate = 0.0
         self.scope = scope
 
+        self._start_time = None
         self._timing_data = list()  # List of tuples. First item in tuple (x) is time.time(), second (y) is numerator.
 
     @property
@@ -69,6 +70,19 @@ class ETA(object):
         """Returns the percent as a float."""
         return 0.0 if self.undefined else self.numerator / self.denominator * 100
 
+    @property
+    def elapsed(self):
+        """Returns the number of seconds it has been since the start until the latest entry."""
+        if not self.started or self._start_time is None:
+            return 0.0
+        return self._timing_data[-1][0] - self._start_time
+
+    @property
+    def rate_overall(self):
+        """Returns the overall average rate based on the start time."""
+        elapsed = self.elapsed
+        return self.rate if not elapsed else self.numerator / self.elapsed
+
     def set_numerator(self, numerator, calculate=True):
         """Sets the new numerator (number of items done). Also cleans up timing data and performs ETA calculation.
 
@@ -84,6 +98,8 @@ class ETA(object):
 
         # Update data.
         now = _NOW()
+        if not self._timing_data or self._start_time is None:
+            self._start_time = now
         if self._timing_data and now == self._timing_data[-1][0]:
             self._timing_data[-1] = (now, numerator)  # Overwrite.
         else:

@@ -9,7 +9,7 @@ from decimal import Decimal, ROUND_DOWN
 import locale
 
 from etaprogress.eta import ETA
-from etaprogress.progress_components import Bar, BaseProgressBar, EtaHMS, Spinner, UnitBit, UnitByte
+from etaprogress.progress_components import Bar, BaseProgressBar, EtaHMS, EtaLetters, Spinner, UnitBit, UnitByte
 
 
 class ProgressBar(Bar, EtaHMS, Spinner, BaseProgressBar):
@@ -31,7 +31,7 @@ class ProgressBar(Bar, EtaHMS, Spinner, BaseProgressBar):
         denominator -- the final unit (Content Length, final size, etc.). None if unknown.
 
         Keyword arguments:
-        unit -- convert numerator/denominator to these units (e.g. '', 'bits', 'bytes').
+        max_width -- limit final output to this width instead of terminal width.
         """
         eta = ETA(denominator=denominator)
         self.eta = eta
@@ -41,8 +41,15 @@ class ProgressBar(Bar, EtaHMS, Spinner, BaseProgressBar):
         Spinner.__init__(self)
 
     @property
+    def percent(self):
+        """Returns the percent to be displayed."""
+        return int(self.eta.percent)
+
+    @property
     def fraction(self):
         """Returns the fraction with additional whitespace."""
+        if self.eta.undefined:
+            return None
         denominator = locale.format('%d', self.eta.denominator, grouping=True)
         numerator = locale.format('%d', self.eta.numerator, grouping=True).rjust(len(denominator))
         return '{0}/{1}'.format(numerator, denominator)
@@ -50,34 +57,27 @@ class ProgressBar(Bar, EtaHMS, Spinner, BaseProgressBar):
     @property
     def numerator(self):
         """Returns the numerator with formatting."""
+        if not self.eta.undefined:
+            return None
         return locale.format('%d', self.eta.numerator, grouping=True)
+
+    @property
+    def eta_string(self):
+        """Returns the ETA string value."""
+        seconds = self.eta.eta_seconds
+        if self.eta.undefined or seconds is None:
+            return '--:--'
+        return getattr(self, '_EtaHMS__eta')(seconds)
+
+    @property
+    def spinner(self):
+        """Returns the next character for the animated spinner."""
+        return getattr(self, '_Spinner__spinner')  # Apparently PyCharm doesn't support name mangling.
 
     @property
     def bar(self):
         """Generates and returns the progress bar (one-line string)."""
-        template = self.TEMPLATE_UNDEFINED if self.eta.undefined else self.TEMPLATE
-        values = dict(
-            percent=int(self.eta.percent),
-            numerator='',
-            fraction='',
-            bar='',
-            eta='--:--',
-            spinner=getattr(self, '_Spinner__spinner'),  # Apparently PyCharm doesn't support name mangling.
-        )
-
-        # Fill in ETA, fraction, and numerator.
-        seconds = self.eta.eta_seconds
-        if not self.eta.undefined and seconds is not None:
-            values['eta'] = getattr(self, '_EtaHMS__eta')(seconds)
-        if not self.eta.undefined:
-            values['fraction'] = self.fraction
-        else:
-            values['numerator'] = self.numerator
-
-        # Fill in bar.
-        width = getattr(self, '_BaseProgressBar__get_remaining_width')(template, values, self.max_width)
-        values['bar'] = getattr(self, '_Bar__bar')(width, self.eta.percent)
-        return template.format(**values)
+        return getattr(self, '_BaseProgressBar__bar_with_dynamic_bar')
 
 
 class ProgressBarBits(ProgressBar):
@@ -98,6 +98,9 @@ class ProgressBarBits(ProgressBar):
     @property
     def fraction(self):
         """Returns the fraction with additional whitespace."""
+        if self.eta.undefined:
+            return None
+
         # Determine denominator and its unit.
         unit_denominator, unit = self._unit_class(self.eta.denominator).auto
         formatter = '%d' if unit_denominator == self.eta.denominator else '%0.2f'
@@ -116,6 +119,8 @@ class ProgressBarBits(ProgressBar):
     @property
     def numerator(self):
         """Returns the numerator with formatting."""
+        if not self.eta.undefined:
+            return None
         unit_numerator, unit = self._unit_class(self.eta.numerator).auto
         formatter = '%d' if unit_numerator == self.eta.numerator else '%0.2f'
         numerator = locale.format(formatter, unit_numerator, grouping=True)
@@ -141,7 +146,7 @@ class ProgressBarBytes(ProgressBarBits):
 # Everything below this line is incomplete.
 
 
-class ProgressBarWget(ProgressBar):
+class ProgressBarWget(Bar, EtaLetters, BaseProgressBar):
     """Progress bar modeled after the one in wget.
 
     Looks like one of these:
@@ -152,9 +157,80 @@ class ProgressBarWget(ProgressBar):
         [      <=>                    ] 35,248,370  9.46MiB/s
         [                   <=>       ] 35,248,370  --.-KiB/s   in 9.7s
     """
-    BAR_LEADING_CHAR = '>'
-    BAR_MAIN_CHAR = '='
-    TEMPLATE = '{percent:3d}% [{bar}] {total} {rate}  eta {eta}'
+
+    TEMPLATE = '{percent:3d}{bar} {numerator} {rate} {eta}'
+    TEMPLATE_UNDEFINED = '   {bar} {numerator} {rate} {eta}'
+    _Bar__CHAR_UNIT_FULL = '='
+    _Bar__CHAR_UNIT_LEADING = '>'
+    _Bar__CHARS_UNDEFINED_ANIMATED = '<=>'
+
+    def __init__(self, denominator, max_width=None):
+        """Positional arguments:
+        denominator -- the final unit (Content Length, final size, etc.). None if unknown.
+
+        Keyword arguments:
+        max_width -- limit final output to this width instead of terminal width.
+        """
+        eta = ETA(denominator=denominator)
+        self.eta = eta
+        self.max_width = max_width
+        Bar.__init__(self, undefined_animated=eta.undefined)
+        EtaLetters.__init__(self)
+
+    @property
+    def numerator(self):
+        """Returns the numerator with formatting."""
+        return locale.format('%11d', self.eta.numerator, grouping=True)
+
+    @property
+    def rate(self):
+        """Returns the rate with formatting. If done, returns the overall rate instead."""
+        # Handle special cases.
+        if not self.eta.started or self.eta.stalled or self.eta.rate == 0.0:
+            return '--.-KiB/s'
+
+        unit_rate, unit = UnitByte(self.eta.rate_overall if self.eta.done else self.eta.rate).auto
+        if unit_rate >= 100:
+            formatter = '%4d'
+        elif unit_rate >= 10:
+            formatter = '%2.1f'
+        else:
+            formatter = '%0.2f'
+        rate = '{0}{1}/s'.format(locale.format(formatter, unit_rate, grouping=False), unit)
+
+        return rate.rjust(9)
+
+    @property
+    def eta_string(self):
+        """Returns a formatted ETA value for the progress bar."""
+        if self.eta.done:
+            return ' in {0}'.format(getattr(self, '_EtaLetters__eta')(self.eta.elapsed))
+        eta = 'eta {0}'.format(getattr(self, '_EtaLetters__eta')(self.eta.eta_seconds))
+
+    @property
+    def bar(self):
+        """Generates and returns the progress bar (one-line string)."""
+        template = self.TEMPLATE_UNDEFINED if self.eta.undefined else self.TEMPLATE
+        values = dict(
+            percent='{0}%'.format(int(self.eta.percent)).center(4),
+            numerator=self.numerator,
+            bar='',
+            eta='            ',
+        )
+
+        # Fill in ETA, fraction, and numerator.
+        seconds = self.eta.eta_seconds
+        if not self.eta.undefined and seconds is not None:
+            values['eta'] = getattr(self, '_EtaHMS__eta')(seconds)
+        if not self.eta.undefined:
+            values['fraction'] = self.fraction
+        else:
+            values['numerator'] = self.numerator
+
+        # Fill in bar.
+        width = getattr(self, '_BaseProgressBar__get_remaining_width')(template, values, self.max_width)
+        values['bar'] = getattr(self, '_Bar__bar')(width, self.eta.percent)
+        return template.format(**values)
 
 
 class ProgressBarYum(ProgressBar):

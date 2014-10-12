@@ -300,7 +300,7 @@ class Bar(object):
 
 
 class BaseProgressBar(object):
-    """."""
+    """Holds common properties/methods/etc for ProgressBar and related subclasses."""
 
     @staticmethod
     def __get_remaining_width(template, values, max_terminal_width):
@@ -319,3 +319,21 @@ class BaseProgressBar(object):
         else:
             available_width = terminal_width()
         return available_width - len(template.format(**values))
+
+    @property
+    def __bar_with_dynamic_bar(self):
+        """Returns a full progress bar. Fits in terminal or max_width if provided."""
+        eta = getattr(self, 'eta')
+        template = getattr(self, 'TEMPLATE_UNDEFINED') if eta.undefined else getattr(self, 'TEMPLATE')
+        values = dict(
+            bar='',
+            eta=getattr(self, 'eta_string', None),
+            fraction=getattr(self, 'fraction', None),
+            numerator=getattr(self, 'numerator', None),
+            percent=getattr(self, 'percent', None),
+            spinner=getattr(self, 'spinner', None),
+        )
+
+        width = self.__get_remaining_width(template, values, getattr(self, 'max_width', None))
+        values['bar'] = getattr(self, '_Bar__bar')(width, eta.percent)
+        return template.format(**values)
