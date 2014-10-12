@@ -7,6 +7,9 @@ python:
   - '3.3'
   - '3.4'
 
+before_install:
+  - sudo apt-get update && sudo apt-get --reinstall install -qq language-pack-de language-pack-ru language-pack-br
+
 install: 'pip install .'
 
 before_script: 'pip install python-coveralls'
