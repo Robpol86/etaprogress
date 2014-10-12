@@ -37,70 +37,70 @@ def test_undefined():
 def test_defined():
     progress_bar = ProgressBarBits(2000)
 
-    assert '  0% (    0.00/2.00 kb) [            ] eta --:-- /' == progress_bar.bar
-    assert '  0% (    0.00/2.00 kb) [            ] eta --:-- -' == progress_bar.bar
-    assert '  0% (    0.00/2.00 kb) [            ] eta --:-- \\' == progress_bar.bar
+    assert '  0% (0.00/2.00 kb) [                ] eta --:-- /' == progress_bar.bar
+    assert '  0% (0.00/2.00 kb) [                ] eta --:-- -' == progress_bar.bar
+    assert '  0% (0.00/2.00 kb) [                ] eta --:-- \\' == progress_bar.bar
 
     eta._NOW = lambda: 1411868722.0
     progress_bar.eta.set_numerator(102)
-    assert '  5% (    0.10/2.00 kb) [            ] eta --:-- |' == progress_bar.bar
-    assert '  5% (    0.10/2.00 kb) [            ] eta --:-- /' == progress_bar.bar
+    assert '  5% (0.10/2.00 kb) [                ] eta --:-- |' == progress_bar.bar
+    assert '  5% (0.10/2.00 kb) [                ] eta --:-- /' == progress_bar.bar
 
     eta._NOW = lambda: 1411868722.5
     progress_bar.eta.set_numerator(281)
-    assert ' 14% (    0.28/2.00 kb) [#           ] eta 00:05 -' == progress_bar.bar
+    assert ' 14% (0.28/2.00 kb) [##              ] eta 00:05 -' == progress_bar.bar
 
     eta._NOW = lambda: 1411868723.0
     progress_bar.eta.set_numerator(593)
-    assert ' 29% (    0.59/2.00 kb) [###         ] eta 00:03 \\' == progress_bar.bar
+    assert ' 29% (0.59/2.00 kb) [####            ] eta 00:03 \\' == progress_bar.bar
 
     eta._NOW = lambda: 1411868723.5
     progress_bar.eta.set_numerator(1925)
-    assert ' 96% (    1.92/2.00 kb) [########### ] eta 00:00 |' == progress_bar.bar
+    assert ' 96% (1.92/2.00 kb) [############### ] eta 00:00 |' == progress_bar.bar
 
     eta._NOW = lambda: 1411868724.0
     progress_bar.eta.set_numerator(1999)
-    assert ' 99% (    1.99/2.00 kb) [########### ] eta 00:00 /' == progress_bar.bar
+    assert ' 99% (1.99/2.00 kb) [############### ] eta 00:00 /' == progress_bar.bar
 
     eta._NOW = lambda: 1411868724.5
     progress_bar.eta.set_numerator(2000)
-    assert '100% (    2.00/2.00 kb) [############] eta 00:00 -' == progress_bar.bar
+    assert '100% (2.00/2.00 kb) [################] eta 00:00 -' == progress_bar.bar
 
 
 def test_defined_rounded():
     progress_bar = ProgressBarBits(1999)
 
-    assert '  0% (    0.00/2.00 kb) [            ] eta --:-- /' == progress_bar.bar
+    assert '  0% (0.00/2.00 kb) [                ] eta --:-- /' == progress_bar.bar
 
     eta._NOW = lambda: 1411868724.0
     progress_bar.eta.set_numerator(1998)
-    assert ' 99% (    1.99/2.00 kb) [########### ] eta --:-- -' == progress_bar.bar
+    assert ' 99% (1.99/2.00 kb) [############### ] eta --:-- -' == progress_bar.bar
 
     eta._NOW = lambda: 1411868724.5
     progress_bar.eta.set_numerator(1999)
-    assert '100% (    2.00/2.00 kb) [############] eta --:-- \\' == progress_bar.bar
+    assert '100% (2.00/2.00 kb) [################] eta --:-- \\' == progress_bar.bar
 
 
 def test_defined_hour():
     progress_bar = ProgressBarBits(2000)
 
-    assert '  0% (    0.00/2.00 kb) [            ] eta --:-- /' == progress_bar.bar
+    assert '  0% (0.00/2.00 kb) [                ] eta --:-- /' == progress_bar.bar
 
     eta._NOW = lambda: 1411868722.0
     progress_bar.eta.set_numerator(1)
-    assert '  0% (    0.00/2.00 kb) [            ] eta --:-- -' == progress_bar.bar
+    assert '  0% (0.00/2.00 kb) [                ] eta --:-- -' == progress_bar.bar
 
     eta._NOW = lambda: 1411868724.0
     progress_bar.eta.set_numerator(2)
-    assert '  0% (    0.00/2.00 kb) [          ] eta 1:06:36 \\' == progress_bar.bar
+    assert '  0% (0.00/2.00 kb) [              ] eta 1:06:36 \\' == progress_bar.bar
 
 
 def test_defined_wont_fit():
     progress_bar = ProgressBarBits(2000, max_width=33)
-    assert '  0% (    0.00/2.00 kb) [] eta --:-- /' == progress_bar.bar
+    assert '  0% (0.00/2.00 kb) [] eta --:-- /' == progress_bar.bar
 
     progress_bar = ProgressBarBits(2000, max_width=30)
-    assert '  0% (    0.00/2.00 kb) [] eta --:-- /' == progress_bar.bar
+    assert '  0% (0.00/2.00 kb) [] eta --:-- /' == progress_bar.bar
 
 
 def test_defined_long():

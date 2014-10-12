@@ -102,7 +102,6 @@ class ProgressBarBits(ProgressBar):
         unit_denominator, unit = self._unit_class(self.eta.denominator).auto
         formatter = '%d' if unit_denominator == self.eta.denominator else '%0.2f'
         denominator = locale.format(formatter, unit_denominator, grouping=True)
-        max_len = len(denominator) if unit_denominator == self.eta.denominator else 8
 
         # Determine numerator.
         unit_numerator = getattr(self._unit_class(self.eta.numerator), unit)
@@ -110,7 +109,7 @@ class ProgressBarBits(ProgressBar):
             rounded_numerator = unit_numerator
         else:
             rounded_numerator = float(Decimal(str(unit_numerator)).quantize(Decimal('.01'), rounding=ROUND_DOWN))
-        numerator = locale.format(formatter, rounded_numerator, grouping=True).rjust(max_len)
+        numerator = locale.format(formatter, rounded_numerator, grouping=True).rjust(len(denominator))
 
         return '{0}/{1} {2}'.format(numerator, denominator, unit)
 
