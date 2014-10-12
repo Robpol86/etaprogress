@@ -141,38 +141,38 @@ def test_defined_long():
     progress_bar.eta.set_numerator(11)
     assert ' 55% (11/20) [#######      ] eta 00:04 \\' == progress_bar.bar
 
-    eta._NOW = lambda: 1411868727.0
+    eta._NOW = lambda: 1411868727.5
     progress_bar.eta.set_numerator(12)
     assert ' 60% (12/20) [#######      ] eta 00:04 |' == progress_bar.bar
 
-    eta._NOW = lambda: 1411868727.0
+    eta._NOW = lambda: 1411868728.0
     progress_bar.eta.set_numerator(13)
-    assert ' 65% (13/20) [########     ] eta 00:03 /' == progress_bar.bar
+    assert ' 65% (13/20) [########     ] eta 00:04 /' == progress_bar.bar
 
-    eta._NOW = lambda: 1411868727.0
+    eta._NOW = lambda: 1411868728.5
     progress_bar.eta.set_numerator(14)
     assert ' 70% (14/20) [#########    ] eta 00:03 -' == progress_bar.bar
 
-    eta._NOW = lambda: 1411868727.0
+    eta._NOW = lambda: 1411868729.0
     progress_bar.eta.set_numerator(15)
     assert ' 75% (15/20) [#########    ] eta 00:02 \\' == progress_bar.bar
 
-    eta._NOW = lambda: 1411868727.0
+    eta._NOW = lambda: 1411868729.5
     progress_bar.eta.set_numerator(16)
     assert ' 80% (16/20) [##########   ] eta 00:02 |' == progress_bar.bar
 
-    eta._NOW = lambda: 1411868727.0
+    eta._NOW = lambda: 1411868730.0
     progress_bar.eta.set_numerator(17)
-    assert ' 85% (17/20) [###########  ] eta 00:01 /' == progress_bar.bar
+    assert ' 85% (17/20) [###########  ] eta 00:02 /' == progress_bar.bar
 
-    eta._NOW = lambda: 1411868727.0
+    eta._NOW = lambda: 1411868730.5
     progress_bar.eta.set_numerator(18)
     assert ' 90% (18/20) [###########  ] eta 00:01 -' == progress_bar.bar
 
-    eta._NOW = lambda: 1411868727.0
+    eta._NOW = lambda: 1411868731.0
     progress_bar.eta.set_numerator(19)
     assert ' 95% (19/20) [############ ] eta 00:00 \\' == progress_bar.bar
 
-    eta._NOW = lambda: 1411868727.0
+    eta._NOW = lambda: 1411868731.5
     progress_bar.eta.set_numerator(20)
     assert '100% (20/20) [#############] eta 00:00 |' == progress_bar.bar

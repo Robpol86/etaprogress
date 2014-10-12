@@ -4,9 +4,10 @@ Holds code for parts of the progress bar such as the spinner and calculating the
 """
 
 from __future__ import division
-from itertools import cycle
-import struct
 import fcntl
+from itertools import cycle
+from math import ceil
+import struct
 import termios
 
 DEFAULT_TERMINAL_WIDTH = None
@@ -160,7 +161,7 @@ class EtaLetters(object):
         if seconds >= 60:
             values['minute'] = int(seconds / 60.0)
             seconds -= values['minute'] * 60
-        values['second'] = seconds
+        values['second'] = int(ceil(seconds))
 
         # Map to characters.
         leading = lambda x: ('{0:02.0f}' if self.__leading_zero else '{0}').format(x)
@@ -331,6 +332,7 @@ class BaseProgressBar(object):
             fraction=getattr(self, 'fraction', None),
             numerator=getattr(self, 'numerator', None),
             percent=getattr(self, 'percent', None),
+            rate=getattr(self, 'rate', None),
             spinner=getattr(self, 'spinner', None),
         )
 

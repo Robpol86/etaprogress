@@ -155,8 +155,8 @@ class ProgressBarWget(Bar, EtaLetters, BaseProgressBar):
         [                   <=>       ] 35,248,370  --.-KiB/s   in 9.7s
     """
 
-    TEMPLATE = '{percent:^3d}{bar} {numerator:<11s} {rate:>9s}  {eta:<12s}'
-    TEMPLATE_UNDEFINED = '   {bar} {numerator:<11s} {rate:>9s}  {eta:<12s}'
+    TEMPLATE = '{percent:^4s}{bar} {numerator:<11s} {rate:>9s}  {eta:<12s}'
+    TEMPLATE_UNDEFINED = '    {bar} {numerator:<11s} {rate:>9s}  {eta:<12s}'
     _Bar__CHAR_UNIT_FULL = '='
     _Bar__CHAR_UNIT_LEADING = '>'
     _Bar__CHARS_UNDEFINED_ANIMATED = '<=>'
@@ -172,6 +172,7 @@ class ProgressBarWget(Bar, EtaLetters, BaseProgressBar):
         eta = ETA(denominator=denominator)
         self.eta = eta
         self.max_width = max_width
+        self.done = False
         self._eta_every = [eta_every, 0, '']
         Bar.__init__(self, with_leading=True, undefined_animated=eta.undefined)
         EtaLetters.__init__(self)
@@ -193,7 +194,7 @@ class ProgressBarWget(Bar, EtaLetters, BaseProgressBar):
         if not self.eta.started or self.eta.stalled or self.eta.rate == 0.0:
             return '--.-KiB/s'
 
-        unit_rate, unit = UnitByte(self.eta.rate_overall if self.eta.done else self.eta.rate).auto
+        unit_rate, unit = UnitByte(self.eta.rate_overall if (self.eta.done or self.done) else self.eta.rate).auto
         if unit_rate >= 100:
             formatter = '%d'
         elif unit_rate >= 10:
@@ -205,7 +206,7 @@ class ProgressBarWget(Bar, EtaLetters, BaseProgressBar):
     @property
     def eta_string(self):
         """Returns a formatted ETA value for the progress bar."""
-        if self.eta.done:
+        if self.eta.done or self.done:
             return ' in {0}'.format(getattr(self, '_EtaLetters__eta')(self.eta.elapsed))
 
         # Restore from cache.
@@ -219,10 +220,13 @@ class ProgressBarWget(Bar, EtaLetters, BaseProgressBar):
             return ''
 
         # Draw ETA.
-        eta = 'eta {0}'.format(getattr(self, '_EtaLetters__eta')(self.eta.eta_seconds))
+        eta = getattr(self, '_EtaLetters__eta')(self.eta.eta_seconds)
+        if eta.count(' ') > 1:
+            eta = ' '.join(eta.split(' ')[:2])
+        eta_formatted = 'eta {0}'.format(eta)
         self._eta_every[1] = 1
-        self._eta_every[2] = eta
-        return eta
+        self._eta_every[2] = eta_formatted
+        return eta_formatted
 
     @property
     def bar(self):
