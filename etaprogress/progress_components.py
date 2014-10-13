@@ -102,6 +102,20 @@ class UnitByte(object):
         else:
             return self.B, 'B'
 
+    @property
+    def auto_no_thousands(self):
+        """Like self.auto but calculates the next unit if >999.99."""
+        if self._value >= 1000000000000:
+            return self.TiB, 'TiB'
+        if self._value >= 1000000000:
+            return self.GiB, 'GiB'
+        if self._value >= 1000000:
+            return self.MiB, 'MiB'
+        if self._value >= 1000:
+            return self.KiB, 'KiB'
+        else:
+            return self.B, 'B'
+
 
 class Spinner(object):
     """Holds logic for 'spinner' character."""

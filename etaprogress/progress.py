@@ -234,15 +234,90 @@ class ProgressBarWget(Bar, EtaLetters, BaseProgressBar):
         return getattr(self, '_BaseProgressBar__bar_with_dynamic_bar')
 
 
-# Everything below this line is incomplete.
-
-
-class ProgressBarYum(ProgressBar):
+class ProgressBarYum(Bar, EtaHMS, BaseProgressBar):
     """Progress bar modeled after the one in YUM.
 
     Looks like one of these:
-    filename.iso   99% [============-] 294 KiB/s | 407 KiB    00:03 ETA
-    file.iso        9% [==           ] 294 KiB/s | 407 KiB    00:03 ETA
+    filename.iso   99% [============-] 294 KiB/s | 407 KiB  00:00:03 ETA
+    file.iso        9% [==           ] 294 KiB/s | 407 KiB  00:00:03 ETA
     no_length.iso      [             ] 294 KiB/s | 407 KiB
     stalled.iso        [             ] --- KiB/s | 407 KiB
     """
+
+    TEMPLATE = '{filename} {percent:>4s} {bar} {rate:>9s} | {numerator:>8s}  {eta} ETA'
+    TEMPLATE_COMPLETED = '{filename} | {numerator:>8s}  {eta}    '
+    _Bar__CHAR_UNIT_FULL = '='
+    _Bar__CHAR_UNIT_HALF = '-'
+
+    def __init__(self, denominator, filename, max_width=None):
+        """Positional arguments:
+        denominator -- the final unit (Content Length, final size, etc.). None if unknown.
+
+        Keyword arguments:
+        max_width -- limit final output to this width instead of terminal width.
+        """
+        eta = ETA(denominator=denominator)
+        self.eta = eta
+        self.done = False
+        self.filename = filename
+        self.max_width = max_width
+        Bar.__init__(self, with_leading=True, undefined_empty=eta.undefined)
+        EtaHMS.__init__(self, always_show_hours=True)
+
+    @property
+    def numerator(self):
+        """Returns the numerator with formatting."""
+        unit_numerator, unit = UnitByte(self.eta.numerator).auto_no_thousands
+        if unit_numerator >= 100:
+            formatter = '%d'
+        else:
+            formatter = '%0.1f'
+        return '{0} {1}'.format(locale.format(formatter, unit_numerator, grouping=False), unit)
+
+    @property
+    def rate(self):
+        """Returns the rate with formatting."""
+        # Handle special cases.
+        if not self.eta.started or self.eta.stalled or self.eta.rate == 0.0:
+            return '--- KiB/s'
+
+        unit_rate, unit = UnitByte(self.eta.rate).auto_no_thousands
+        if unit_rate >= 100:
+            formatter = '%d'
+        else:
+            formatter = '%0.1f'
+        return '{0} {1}/s'.format(locale.format(formatter, unit_rate, grouping=False), unit)
+
+    @property
+    def eta_string(self):
+        """Returns a formatted ETA value for the progress bar."""
+        return getattr(self, '_EtaHMS__eta')(self.eta.elapsed if self.eta.done or self.done else self.eta.eta_seconds)
+
+    @property
+    def bar(self):
+        """Generates and returns the progress bar (one-line string)."""
+        values = dict(
+            bar='',
+            eta=getattr(self, 'eta_string', None),
+            filename='',
+            numerator=getattr(self, 'numerator', None),
+            percent=None,
+            rate=None,
+        )
+        if self.eta.done or self.done:
+            template = self.TEMPLATE_COMPLETED
+        else:
+            template = self.TEMPLATE
+            values['percent'] = '{0}%'.format(int(self.eta.percent))
+            values['rate'] = self.rate
+        width = self.__get_remaining_width(template, values, getattr(self, 'max_width', None))
+
+        # Filename will have 40% of the available width if not done.
+        if self.eta.done or self.done:
+            values['filename'] = self.filename[:width].ljust(width)
+        else:
+            width_filename = int(width * 0.4)
+            values['filename'] = self.filename[:width_filename].ljust(width_filename)
+            values['bar'] = getattr(self, '_Bar__bar')(width - width_filename, self.eta.percent)
+
+        return template.format(**values)
