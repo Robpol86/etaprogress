@@ -244,8 +244,8 @@ class ProgressBarYum(Bar, EtaHMS, BaseProgressBar):
     stalled.iso        [             ] --- KiB/s | 407 KiB
     """
 
-    TEMPLATE = '{filename} {percent:>4s} {bar} {rate:>9s} | {numerator:>8s}  {eta} ETA'
-    TEMPLATE_COMPLETED = '{filename} | {numerator:>8s}  {eta}    '
+    TEMPLATE = '{filename} {percent:>4s} {bar} {rate:>9s} | {numerator:>7s}  {eta:<12s}'
+    TEMPLATE_COMPLETED = '{filename} | {numerator:>7s}  {eta:<12s}'
     _Bar__CHAR_UNIT_FULL = '='
     _Bar__CHAR_UNIT_HALF = '-'
 
@@ -261,14 +261,14 @@ class ProgressBarYum(Bar, EtaHMS, BaseProgressBar):
         self.done = False
         self.filename = filename
         self.max_width = max_width
-        Bar.__init__(self, with_leading=True, undefined_empty=eta.undefined)
-        EtaHMS.__init__(self, always_show_hours=True)
+        Bar.__init__(self, undefined_empty=eta.undefined)
+        EtaHMS.__init__(self, always_show_hours=True, hours_leading_zero=True)
 
     @property
     def numerator(self):
         """Returns the numerator with formatting."""
         unit_numerator, unit = UnitByte(self.eta.numerator).auto_no_thousands
-        if unit_numerator >= 100:
+        if unit_numerator >= 10:
             formatter = '%d'
         else:
             formatter = '%0.1f'
@@ -282,7 +282,7 @@ class ProgressBarYum(Bar, EtaHMS, BaseProgressBar):
             return '--- KiB/s'
 
         unit_rate, unit = UnitByte(self.eta.rate).auto_no_thousands
-        if unit_rate >= 100:
+        if unit_rate >= 10:
             formatter = '%d'
         else:
             formatter = '%0.1f'
@@ -291,7 +291,12 @@ class ProgressBarYum(Bar, EtaHMS, BaseProgressBar):
     @property
     def eta_string(self):
         """Returns a formatted ETA value for the progress bar."""
-        return getattr(self, '_EtaHMS__eta')(self.eta.elapsed if self.eta.done or self.done else self.eta.eta_seconds)
+        if self.eta.done or self.done:
+            return getattr(self, '_EtaHMS__eta')(self.eta.elapsed)
+        seconds = self.eta.eta_seconds
+        if seconds is None:
+            return ''
+        return '{0} ETA'.format(getattr(self, '_EtaHMS__eta')(seconds))
 
     @property
     def bar(self):
@@ -308,16 +313,16 @@ class ProgressBarYum(Bar, EtaHMS, BaseProgressBar):
             template = self.TEMPLATE_COMPLETED
         else:
             template = self.TEMPLATE
-            values['percent'] = '{0}%'.format(int(self.eta.percent))
+            values['percent'] = '' if self.eta.undefined else '{0}%'.format(int(self.eta.percent))
             values['rate'] = self.rate
-        width = self.__get_remaining_width(template, values, getattr(self, 'max_width', None))
+        width = getattr(self, '_BaseProgressBar__get_remaining_width')(template, values, self.max_width)
 
         # Filename will have 40% of the available width if not done.
         if self.eta.done or self.done:
-            values['filename'] = self.filename[:width].ljust(width)
+            values['filename'] = self.filename[:width].ljust(width) if width > 0 else ''
         else:
             width_filename = int(width * 0.4)
-            values['filename'] = self.filename[:width_filename].ljust(width_filename)
+            values['filename'] = self.filename[:width_filename].ljust(width_filename) if width_filename > 0 else ''
             values['bar'] = getattr(self, '_Bar__bar')(width - width_filename, self.eta.percent)
 
         return template.format(**values)

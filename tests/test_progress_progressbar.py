@@ -56,11 +56,11 @@ def test_defined():
 
     eta._NOW = lambda: 1411868723.5
     progress_bar.eta.set_numerator(1925)
-    assert ' 96% (1,925/2,000) [###### ] eta 00:00 |' == progress_bar.bar
+    assert ' 96% (1,925/2,000) [###### ] eta 00:01 |' == progress_bar.bar
 
     eta._NOW = lambda: 1411868724.0
     progress_bar.eta.set_numerator(1999)
-    assert ' 99% (1,999/2,000) [###### ] eta 00:00 /' == progress_bar.bar
+    assert ' 99% (1,999/2,000) [###### ] eta 00:01 /' == progress_bar.bar
 
     eta._NOW = lambda: 1411868724.5
     progress_bar.eta.set_numerator(2000)
@@ -107,7 +107,7 @@ def test_defined_long():
 
     eta._NOW = lambda: 1411868723.0
     progress_bar.eta.set_numerator(3)
-    assert ' 15% ( 3/20) [#            ] eta 00:08 \\' == progress_bar.bar
+    assert ' 15% ( 3/20) [#            ] eta 00:09 \\' == progress_bar.bar
 
     eta._NOW = lambda: 1411868723.5
     progress_bar.eta.set_numerator(4)
@@ -123,7 +123,7 @@ def test_defined_long():
 
     eta._NOW = lambda: 1411868725.0
     progress_bar.eta.set_numerator(7)
-    assert ' 35% ( 7/20) [####         ] eta 00:06 \\' == progress_bar.bar
+    assert ' 35% ( 7/20) [####         ] eta 00:07 \\' == progress_bar.bar
 
     eta._NOW = lambda: 1411868725.5
     progress_bar.eta.set_numerator(8)
@@ -139,7 +139,7 @@ def test_defined_long():
 
     eta._NOW = lambda: 1411868727.0
     progress_bar.eta.set_numerator(11)
-    assert ' 55% (11/20) [#######      ] eta 00:04 \\' == progress_bar.bar
+    assert ' 55% (11/20) [#######      ] eta 00:05 \\' == progress_bar.bar
 
     eta._NOW = lambda: 1411868727.5
     progress_bar.eta.set_numerator(12)
@@ -155,7 +155,7 @@ def test_defined_long():
 
     eta._NOW = lambda: 1411868729.0
     progress_bar.eta.set_numerator(15)
-    assert ' 75% (15/20) [#########    ] eta 00:02 \\' == progress_bar.bar
+    assert ' 75% (15/20) [#########    ] eta 00:03 \\' == progress_bar.bar
 
     eta._NOW = lambda: 1411868729.5
     progress_bar.eta.set_numerator(16)
@@ -171,7 +171,7 @@ def test_defined_long():
 
     eta._NOW = lambda: 1411868731.0
     progress_bar.eta.set_numerator(19)
-    assert ' 95% (19/20) [############ ] eta 00:00 \\' == progress_bar.bar
+    assert ' 95% (19/20) [############ ] eta 00:01 \\' == progress_bar.bar
 
     eta._NOW = lambda: 1411868731.5
     progress_bar.eta.set_numerator(20)

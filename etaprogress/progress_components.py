@@ -233,7 +233,7 @@ class EtaHMS(object):
         if seconds >= 60:
             values['minute'] = int(seconds / 60.0)
             seconds -= values['minute'] * 60
-        values['second'] = seconds
+        values['second'] = int(ceil(seconds))
 
         return template.format(**values)
 
