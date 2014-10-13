@@ -11,3 +11,4 @@ Work in progress.
 - [ ] Create example_colors.py.
 - [ ] Run PyLint/style checker.
 - [ ] Verify all docstrings.
+- [ ] Use setter instead of set_numerator().
