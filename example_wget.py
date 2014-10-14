@@ -60,7 +60,6 @@ class DownloadThread(threading.Thread):
 
 def main():
     """From: http://stackoverflow.com/questions/20801034/how-to-measure-download-speed-and-progress-using-requests"""
-    # TODO fix content length. Never stops.
     # Parse rate.
     if OPTIONS['--limit-rate']:
         rate = int(''.join([c for c in OPTIONS['--limit-rate'] if c.isdigit()]))
@@ -88,7 +87,7 @@ def main():
         sys.stdout.flush()
 
         # For undefined downloads (no content-length), check if thread has stopped. Loop only checks defined downloads.
-        if not thread.is_alive:
+        if not thread.isAlive():
             progress_bar.done = True
             break
         if progress_bar.eta.done:
