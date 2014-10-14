@@ -5,12 +5,10 @@ This example application downloads a specified file to null. Its only purpose
 is to show a progress bar and ETA similar to that of the wget application.
 
 Usage:
-    example_wget.py [--ignore-length] [--limit-rate=RATE] <url>
+    example_wget.py [--ignore-length] <url>
 
 Options:
     --ignore-length         Ignore `Content-Length' header field.
-    --limit-rate=RATE       Limit download rate to RATE (e.g. 20k or 1m, these
-                            are in bytes).
 """
 
 from __future__ import print_function
@@ -37,18 +35,16 @@ def error(message, code=1):
 
 
 class DownloadThread(threading.Thread):
-    """Downloads the file, but doesn't save it (just the file size). Applies any rate limiting."""
+    """Downloads the file, but doesn't save it (just the file size)."""
 
-    def __init__(self, response, rate):
+    def __init__(self, response):
         super(DownloadThread, self).__init__()
         self.response = response
-        self.rate = rate
 
         self._bytes_downloaded = 0
         self.daemon = True
 
     def run(self):
-        # TODO apply rate limiting.
         for chunk in self.response.iter_content(1024):
             self._bytes_downloaded += len(chunk)
 
@@ -60,23 +56,12 @@ class DownloadThread(threading.Thread):
 
 def main():
     """From: http://stackoverflow.com/questions/20801034/how-to-measure-download-speed-and-progress-using-requests"""
-    # Parse rate.
-    if OPTIONS['--limit-rate']:
-        rate = int(''.join([c for c in OPTIONS['--limit-rate'] if c.isdigit()]))
-        if OPTIONS['--limit-rate'].endswith('k'):
-            rate *= 1024
-        elif OPTIONS['--limit-rate'].endswith('m'):
-            rate *= 1048576
-        print('Limiting to {0} bytes per second.'.format(rate))
-    else:
-        rate = None
-
     # Prepare.
     locale.resetlocale()
     response = requests.get(OPTIONS['<url>'], stream=True)
     content_length = None if OPTIONS['--ignore-length'] else int(response.headers.get('Content-Length'))
     progress_bar = ProgressBarWget(content_length, eta_every=4)
-    thread = DownloadThread(response, rate)
+    thread = DownloadThread(response)
     print_every_seconds = 0.25
 
     # Download.
