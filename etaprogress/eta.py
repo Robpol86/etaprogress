@@ -40,6 +40,11 @@ class ETA(object):
         """Returns the latest numerator."""
         return self._timing_data[-1][1] if self._timing_data else 0
 
+    @numerator.setter
+    def numerator(self, value):
+        """Sets a new numerator (adds to timing data table). Must be greater than or equal to previous numerator."""
+        self.set_numerator(value)
+
     @property
     def stalled(self):
         """Returns True if the rate is 0."""

@@ -7,7 +7,7 @@ def test():
     pairs = [(i, i * 2) for i in range(1, 121)]
     for t, n in pairs:
         eta._NOW = lambda: t + 1411868722.680839
-        eta_instance.set_numerator(n)
+        eta_instance.numerator = n
 
         assert n == eta_instance.numerator
         if t >= 2:
