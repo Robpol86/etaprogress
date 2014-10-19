@@ -10,6 +10,7 @@ class BaseProgressBar(object):
         self._eta = ETA(denominator=denominator)
         self.max_width = max_width
         self.eta_every = eta_every
+        self.force_done = False
         self._eta_string = ''
         self._eta_count = 1
 
@@ -21,6 +22,13 @@ class BaseProgressBar(object):
     def denominator(self):
         """Returns the denominator as an integer."""
         return int(self._eta.denominator)
+
+    @property
+    def done(self):
+        """Returns True if the progress has completed."""
+        if self.force_done:
+            return True
+        return self._eta.done
 
     @property
     def numerator(self):
@@ -60,3 +68,8 @@ class BaseProgressBar(object):
     def rate(self):
         """Returns the rate of the progress as a float. Selects the unstable rate if eta_every > 1 for performance."""
         return float(self._eta.rate_unstable if self.eta_every > 1 else self._eta.rate)
+
+    @property
+    def undefined(self):
+        """Return True if the progress bar is undefined (unknown denominator)."""
+        return self._eta.undefined

@@ -12,6 +12,7 @@ from etaprogress.components.bars import Bar, BarUndefinedAnimated
 from etaprogress.components.base_progress_bar import BaseProgressBar
 from etaprogress.components.eta_conversions import eta_hms
 from etaprogress.components.misc import get_remaining_width, SPINNER
+from etaprogress.components.units import UnitBit, UnitByte
 
 
 class ProgressBar(BaseProgressBar):
@@ -27,7 +28,7 @@ class ProgressBar(BaseProgressBar):
 
     def __init__(self, denominator, max_width=None):
         super(ProgressBar, self).__init__(denominator, max_width=max_width)
-        if self._eta.undefined:
+        if self.undefined:
             self.template = '{numerator} {bar} eta --:-- {spinner}'
             self._bar = BarUndefinedAnimated()
         else:
@@ -39,12 +40,12 @@ class ProgressBar(BaseProgressBar):
         # Partially build out template.
         bar = '{bar}'
         spinner = next(SPINNER)
-        if self._eta.undefined:
-            numerator = locale.format('%d', self.numerator, grouping=True)
+        if self.undefined:
+            numerator = self.str_numerator
             template = self.template.format(numerator=numerator, bar=bar, spinner=spinner)
         else:
             percent = int(self.percent)
-            fraction = self.fraction
+            fraction = self.str_fraction
             eta = self._eta_string or '--:--'
             template = self.template.format(percent=percent, fraction=fraction, bar=bar, eta=eta, spinner=spinner)
 
@@ -59,13 +60,18 @@ class ProgressBar(BaseProgressBar):
         return '' if seconds is None else eta_hms(seconds, always_show_minutes=True)
 
     @property
-    def fraction(self):
+    def str_fraction(self):
         """Returns the fraction with additional whitespace."""
-        if self._eta.undefined:
+        if self.undefined:
             return None
         denominator = locale.format('%d', self.denominator, grouping=True)
-        numerator = locale.format('%d', self.numerator, grouping=True).rjust(len(denominator))
+        numerator = self.str_numerator.rjust(len(denominator))
         return '{0}/{1}'.format(numerator, denominator)
+
+    @property
+    def str_numerator(self):
+        """Returns the numerator as a formatted string."""
+        return locale.format('%d', self.numerator, grouping=True)
 
 
 class ProgressBarBits(ProgressBar):
@@ -81,22 +87,22 @@ class ProgressBarBits(ProgressBar):
 
     def __init__(self, denominator, max_width=None):
         super(ProgressBarBits, self).__init__(denominator, max_width)
-        self._unit_class = None  #UnitBit
+        self._unit_class = UnitBit
 
     @property
-    def fraction(self):
+    def str_fraction(self):
         """Returns the fraction with additional whitespace."""
-        if self.eta.undefined:
+        if self._eta.undefined:
             return None
 
         # Determine denominator and its unit.
-        unit_denominator, unit = self._unit_class(self.eta.denominator).auto
-        formatter = '%d' if unit_denominator == self.eta.denominator else '%0.2f'
+        unit_denominator, unit = self._unit_class(self.denominator).auto
+        formatter = '%d' if unit_denominator == self.denominator else '%0.2f'
         denominator = locale.format(formatter, unit_denominator, grouping=True)
 
         # Determine numerator.
-        unit_numerator = getattr(self._unit_class(self.eta.numerator), unit)
-        if self.eta.done:
+        unit_numerator = getattr(self._unit_class(self.numerator), unit)
+        if self.done:
             rounded_numerator = unit_numerator
         else:
             rounded_numerator = float(Decimal(str(unit_numerator)).quantize(Decimal('.01'), rounding=ROUND_DOWN))
@@ -105,12 +111,12 @@ class ProgressBarBits(ProgressBar):
         return '{0}/{1} {2}'.format(numerator, denominator, unit)
 
     @property
-    def numerator(self):
+    def str_numerator(self):
         """Returns the numerator with formatting."""
-        if not self.eta.undefined:
+        if not self.undefined:
             return None
-        unit_numerator, unit = self._unit_class(self.eta.numerator).auto
-        formatter = '%d' if unit_numerator == self.eta.numerator else '%0.2f'
+        unit_numerator, unit = self._unit_class(self.numerator).auto
+        formatter = '%d' if unit_numerator == self.numerator else '%0.2f'
         numerator = locale.format(formatter, unit_numerator, grouping=True)
         return '{0} {1}'.format(numerator, unit)
 
@@ -128,7 +134,7 @@ class ProgressBarBytes(ProgressBarBits):
 
     def __init__(self, denominator, max_width=None):
         super(ProgressBarBits, self).__init__(denominator, max_width)
-        self._unit_class = None  # UnitByte
+        self._unit_class = UnitByte
 
 
 class ProgressBarWget(Bar, BaseProgressBar):
