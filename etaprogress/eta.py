@@ -83,13 +83,22 @@ class ETA(object):
         return self._timing_data[-1][0] - self._start_time
 
     @property
+    def rate_unstable(self):
+        """Returns an unstable rate based on the last two entries in the timing data. Less intensive to compute."""
+        if not self.started or self.stalled:
+            return 0.0
+        x1, y1 = self._timing_data[-2]
+        x2, y2 = self._timing_data[-1]
+        return (y2 - y1) / (x2 - x1)
+
+    @property
     def rate_overall(self):
         """Returns the overall average rate based on the start time."""
         elapsed = self.elapsed
         return self.rate if not elapsed else self.numerator / self.elapsed
 
     def set_numerator(self, numerator, calculate=True):
-        """Sets the new numerator (number of items done). Also cleans up timing data and performs ETA calculation.
+        """Sets the new numerator (number of items done).
 
         Positional arguments:
         numerator -- the new numerator to add to the timing data.
@@ -108,16 +117,8 @@ class ETA(object):
         else:
             self._timing_data.append((now, numerator))
 
-        # If done stop here.
-        if self.done:
-            return
-
-        # Filter old data.
-        if len(self._timing_data) > self.scope:
-            self._timing_data[:] = self._timing_data[-self.scope:]
-
         # Calculate ETA and rate.
-        if calculate and self.started:
+        if not self.done and calculate and self.started:
             self._calculate()
 
     def _calculate(self):
@@ -133,6 +134,10 @@ class ETA(object):
         http://code.activestate.com/recipes/578914-simple-linear-regression-with-pure-python/
         http://en.wikipedia.org/wiki/Pearson_product-moment_correlation_coefficient
         """
+        # Filter old data.
+        if len(self._timing_data) > self.scope:
+            self._timing_data[:] = self._timing_data[-self.scope:]
+
         # Calculate means and standard deviations.
         mean_x = sum(i[0] for i in self._timing_data) / len(self._timing_data)
         mean_y = sum(i[1] for i in self._timing_data) / len(self._timing_data)

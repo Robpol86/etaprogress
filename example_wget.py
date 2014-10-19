@@ -73,7 +73,7 @@ def main():
 
         # For undefined downloads (no content-length), check if thread has stopped. Loop only checks defined downloads.
         if not thread.isAlive():
-            progress_bar.done = True
+            progress_bar.force_done = True
             break
         if progress_bar.eta.done:
             break
