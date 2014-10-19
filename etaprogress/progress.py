@@ -30,10 +30,10 @@ class ProgressBar(BaseProgressBar):
         super(ProgressBar, self).__init__(denominator, max_width=max_width)
         if self.undefined:
             self.template = '{numerator} {bar} eta --:-- {spinner}'
-            self._bar = BarUndefinedAnimated()
+            self.bar = BarUndefinedAnimated()
         else:
             self.template = '{percent:3d}% ({fraction}) {bar} eta {eta} {spinner}'
-            self._bar = Bar()
+            self.bar = Bar()
 
     def __str__(self):
         """Returns the fully-built progress bar and other data."""
@@ -51,7 +51,7 @@ class ProgressBar(BaseProgressBar):
 
         # Determine bar width and finish.
         width = get_remaining_width(template.format(bar=''), self.max_width or None)
-        bar = self._bar.bar(width, percent=self.percent)
+        bar = self.bar.bar(width, percent=self.percent)
         return template.format(bar=bar)
 
     @staticmethod
@@ -165,12 +165,12 @@ class ProgressBarWget(BaseProgressBar):
         if self.undefined:
             self.template = '    {bar} {numerator:<11s} {rate:>9s}  {eta:<12s}'
             BarUndefinedAnimated.CHAR_ANIMATED = '<=>'
-            self._bar = BarUndefinedAnimated()
+            self.bar = BarUndefinedAnimated()
         else:
             self.template = '{percent:^4s}{bar} {numerator:<11s} {rate:>9s}  {eta:<12s}'
             Bar.CHAR_FULL = '='
             Bar.CHAR_LEADING = '>'
-            self._bar = Bar()
+            self.bar = Bar()
 
     def __str__(self):
         """Returns the fully-built progress bar and other data."""
@@ -187,7 +187,7 @@ class ProgressBarWget(BaseProgressBar):
 
         # Determine bar width and finish.
         width = get_remaining_width(template.format(bar=''), self.max_width or None)
-        bar = self._bar.bar(width, percent=self.percent)
+        bar = self.bar.bar(width, percent=self.percent)
         return template.format(bar=bar)
 
     @staticmethod
@@ -244,9 +244,9 @@ class ProgressBarYum(BaseProgressBar):
         self.template = '{filename} {percent:>4s} {bar} {rate:>9s} | {numerator:>7s}  {eta:<12s}'
         self.template_completed = '{filename} | {numerator:>7s}  {eta:<12s}'
         if self.undefined:
-            self._bar = BarUndefinedEmpty()
+            self.bar = BarUndefinedEmpty()
         else:
-            self._bar = BarDoubled()
+            self.bar = BarDoubled()
 
     def __str__(self):
         """Returns the fully-built progress bar and other data."""
@@ -271,7 +271,7 @@ class ProgressBarYum(BaseProgressBar):
         else:
             width_filename = int(width * 0.4)
             filename = self.filename[:width_filename].ljust(width_filename) if width_filename > 0 else ''
-            bar = self._bar.bar(width - width_filename, percent=self.percent)
+            bar = self.bar.bar(width - width_filename, percent=self.percent)
         return template.format(bar=bar, filename=filename)
 
     @staticmethod
