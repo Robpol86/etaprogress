@@ -1,9 +1,11 @@
+from collections import deque
+
 from etaprogress.eta import ETA
 
 
 def test_linear_slope_1():
     eta = ETA(100)
-    eta._timing_data = [(10, 10), (20, 20), (30, 30), (40, 40)]
+    eta._timing_data = deque([(10, 10), (20, 20), (30, 30), (40, 40)])
     getattr(eta, '_calculate')()
 
     assert 100 == eta.eta_epoch
@@ -13,7 +15,7 @@ def test_linear_slope_1():
 
 def test_linear_slope_2():
     eta = ETA(100)
-    eta._timing_data = [(10, 20), (20, 40), (30, 60), (40, 80)]
+    eta._timing_data = deque([(10, 20), (20, 40), (30, 60), (40, 80)])
     getattr(eta, '_calculate')()
 
     assert 50 == eta.eta_epoch
@@ -31,7 +33,7 @@ def test_linear_transform():
     This avoids having 99% with an ETA in the past.
     """
     eta = ETA(120)
-    eta._timing_data = [(1.2, 22), (2.4, 58), (3.1, 102), (4.4, 118)]
+    eta._timing_data = deque([(1.2, 22), (2.4, 58), (3.1, 102), (4.4, 118)])
     getattr(eta, '_calculate')()
 
     assert 4.4 < eta.eta_epoch < 4.6
@@ -41,7 +43,7 @@ def test_linear_transform():
 
 def test_linear_transform_undefined():
     eta = ETA()
-    eta._timing_data = [(1.2, 22), (2.4, 58), (3.1, 102), (4.4, 118)]
+    eta._timing_data = deque([(1.2, 22), (2.4, 58), (3.1, 102), (4.4, 118)])
     getattr(eta, '_calculate')()
 
     assert eta.eta_epoch is None
