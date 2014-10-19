@@ -18,6 +18,11 @@ class BaseProgressBar(object):
         raise NotImplementedError
 
     @property
+    def denominator(self):
+        """Returns the denominator as an integer."""
+        return int(self._eta.denominator)
+
+    @property
     def numerator(self):
         """Returns the numerator as an integer."""
         return int(self._eta.numerator)
@@ -29,6 +34,11 @@ class BaseProgressBar(object):
         if self.eta_every <= 1:
             self._eta.numerator = value
             self._eta_string = self._generate_eta(self._eta.eta_seconds)
+            return
+
+        # If ETA is not every iteration, unstable rate is used. If this bar is undefined, no point in calculating ever.
+        if self._eta.undefined:
+            self._eta.set_numerator(value, calculate=False)
             return
 
         # Calculate if this iteration is the right one.
@@ -49,5 +59,4 @@ class BaseProgressBar(object):
     @property
     def rate(self):
         """Returns the rate of the progress as a float. Selects the unstable rate if eta_every > 1 for performance."""
-        # If ETA is every iteration, don't do anything fancy.
         return float(self._eta.rate_unstable if self.eta_every > 1 else self._eta.rate)

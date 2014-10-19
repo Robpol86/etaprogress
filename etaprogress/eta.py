@@ -5,6 +5,7 @@ https://pypi.python.org/pypi/etaprogress
 """
 
 from __future__ import division
+from collections import deque
 from math import sqrt
 import time
 
@@ -22,18 +23,19 @@ class ETA(object):
     Instance variables:
     eta_epoch -- expected time (seconds since Unix epoch or time.time()) of completion (float).
     rate -- current rate of progress (float).
-    scope -- calculate ETA using this scope. Default is 60, so use the last 60 entries by set_numerator() to calculate
-            the ETA.
+    _start_time -- used to derive the amount of time everything took to reach 100%.
+    _timing_data -- deque instance holding timing data. Similar to a list. Items are 2-item tuples, first item (x) is
+        time.time(), second item (y) is the numerator. Limited to the scope (default 60) to base ETA on. Once this limit
+        is reached, any new numerator item pushes off the oldest entry from the deque instance.
     """
 
     def __init__(self, denominator=0, scope=60):
         self.denominator = denominator
         self.eta_epoch = None
         self.rate = 0.0
-        self.scope = scope
 
         self._start_time = _NOW()
-        self._timing_data = list()  # List of tuples. First item in tuple (x) is time.time(), second (y) is numerator.
+        self._timing_data = deque(maxlen=scope)
 
     @property
     def numerator(self):
@@ -134,10 +136,6 @@ class ETA(object):
         http://code.activestate.com/recipes/578914-simple-linear-regression-with-pure-python/
         http://en.wikipedia.org/wiki/Pearson_product-moment_correlation_coefficient
         """
-        # Filter old data.
-        if len(self._timing_data) > self.scope:
-            self._timing_data[:] = self._timing_data[-self.scope:]
-
         # Calculate means and standard deviations.
         mean_x = sum(i[0] for i in self._timing_data) / len(self._timing_data)
         mean_y = sum(i[1] for i in self._timing_data) / len(self._timing_data)

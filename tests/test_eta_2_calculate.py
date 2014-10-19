@@ -8,6 +8,7 @@ def test_linear_slope_1():
 
     assert 100 == eta.eta_epoch
     assert 1.0 == eta.rate
+    assert 1.0 == eta.rate_unstable
 
 
 def test_linear_slope_2():
@@ -17,6 +18,7 @@ def test_linear_slope_2():
 
     assert 50 == eta.eta_epoch
     assert 2.0 == eta.rate
+    assert 2.0 == eta.rate_unstable
 
 
 def test_linear_transform():
@@ -34,6 +36,7 @@ def test_linear_transform():
 
     assert 4.4 < eta.eta_epoch < 4.6
     assert 30 < eta.rate < 35
+    assert 12 < eta.rate_unstable < 13
 
 
 def test_linear_transform_undefined():
@@ -43,3 +46,4 @@ def test_linear_transform_undefined():
 
     assert eta.eta_epoch is None
     assert 30 < eta.rate < 35
+    assert 12 < eta.rate_unstable < 13
