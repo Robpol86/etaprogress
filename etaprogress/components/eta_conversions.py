@@ -4,16 +4,16 @@ from math import ceil
 
 
 def eta_hms(seconds, always_show_hours=False, always_show_minutes=False, hours_leading_zero=False):
-    """Converts seconds remaining into a human readable timestamp (e.g. hh:mm:ss, h:mm:ss, mm:ss, or ss). 
-    
+    """Converts seconds remaining into a human readable timestamp (e.g. hh:mm:ss, h:mm:ss, mm:ss, or ss).
+
     Positional arguments:
     seconds -- integer/float indicating seconds remaining.
-    
+
     Keyword arguments:
     always_show_hours -- don't hide the 0 hours.
     always_show_minutes -- don't hide the 0 minutes.
     hours_leading_zero -- show 01:00:00 instead of 1:00:00.
-    
+
     Returns:
     Human readable string.
     """

@@ -6,11 +6,11 @@ def test_empty(request):
         BarUndefinedEmpty.CHAR_LEFT_BORDER = '['
         BarUndefinedEmpty.CHAR_RIGHT_BORDER = ']'
     request.addfinalizer(fin)
-    
+
     bar = BarUndefinedEmpty()
     assert '[        ]' == bar.bar(10)
     assert '[             ]' == bar.bar(15)
-    
+
     BarUndefinedEmpty.CHAR_LEFT_BORDER = '[['
     BarUndefinedEmpty.CHAR_RIGHT_BORDER = ']]'
     bar = BarUndefinedEmpty()
@@ -65,7 +65,7 @@ def test_undefined_animated_large(request):
     BarUndefinedAnimated.CHAR_RIGHT_BORDER = ']>'
     BarUndefinedAnimated.CHAR_ANIMATED = '<?>'
     bar = BarUndefinedAnimated()
-    
+
     assert '<[<?>   ]>' == bar.bar(10)
     assert '<[ <?>  ]>' == bar.bar(10)
     assert '<[  <?> ]>' == bar.bar(10)
