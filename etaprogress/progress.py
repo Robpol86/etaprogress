@@ -10,7 +10,7 @@ import locale
 
 from etaprogress.components.bars import Bar, BarUndefinedAnimated
 from etaprogress.components.base_progress_bar import BaseProgressBar
-from etaprogress.components.eta_conversions import eta_hms
+from etaprogress.components.eta_conversions import eta_hms, eta_letters
 from etaprogress.components.misc import get_remaining_width, SPINNER
 from etaprogress.components.units import UnitBit, UnitByte
 
@@ -137,7 +137,7 @@ class ProgressBarBytes(ProgressBarBits):
         self._unit_class = UnitByte
 
 
-class ProgressBarWget(Bar, BaseProgressBar):
+class ProgressBarWget(BaseProgressBar):
     """Progress bar modeled after the one in wget.
 
     Looks like one of these:
@@ -149,8 +149,6 @@ class ProgressBarWget(Bar, BaseProgressBar):
         [                   <=>       ] 35,248,370  --.-KiB/s   in 9.7s
     """
 
-    TEMPLATE = '{percent:^4s}{bar} {numerator:<11s} {rate:>9s}  {eta:<12s}'
-    TEMPLATE_UNDEFINED = '    {bar} {numerator:<11s} {rate:>9s}  {eta:<12s}'
     _Bar__CHAR_UNIT_FULL = '='
     _Bar__CHAR_UNIT_LEADING = '>'
     _Bar__CHARS_UNDEFINED_ANIMATED = '<=>'
@@ -163,32 +161,58 @@ class ProgressBarWget(Bar, BaseProgressBar):
         max_width -- limit final output to this width instead of terminal width.
         eta_every -- if 4, then every 4th .bar iteration changes the ETA displayed.
         """
-        eta = None  # ETA(denominator=denominator)
-        self.eta = eta
-        self.max_width = max_width
-        self.done = False
-        self._eta_every = [eta_every, 0, '']
-        Bar.__init__(self, with_leading=True, undefined_animated=eta.undefined)
-        #EtaLetters.__init__(self)
+        super(ProgressBarWget, self).__init__(denominator, max_width=max_width, eta_every=eta_every)
+        if self.undefined:
+            self.template = '    {bar} {numerator:<11s} {rate:>9s}  {eta:<12s}'
+            BarUndefinedAnimated.CHAR_ANIMATED = '<=>'
+            self._bar = BarUndefinedAnimated()
+        else:
+            self.template = '{percent:^4s}{bar} {numerator:<11s} {rate:>9s}  {eta:<12s}'
+            Bar.CHAR_FULL = '='
+            Bar.CHAR_LEADING = '>'
+            self._bar = Bar()
+
+    def __str__(self):
+        """Returns the fully-built progress bar and other data."""
+        # Partially build out template.
+        bar = '{bar}'
+        numerator = locale.format('%d', self.numerator, grouping=True)
+        rate = self.str_rate
+        eta = self.str_eta
+        if self.undefined:
+            template = self.template.format(bar=bar, numerator=numerator, rate=rate, eta=eta)
+        else:
+            percent = '{0}%'.format(int(self.percent))
+            template = self.template.format(percent=percent, bar=bar, numerator=numerator, rate=rate, eta=eta)
+
+        # Determine bar width and finish.
+        width = get_remaining_width(template.format(bar=''), self.max_width or None)
+        bar = self._bar.bar(width, percent=self.percent)
+        return template.format(bar=bar)
+
+    @staticmethod
+    def _generate_eta(seconds):
+        """Returns a human readable ETA string."""
+        return '' if seconds is None else eta_letters(seconds)
 
     @property
-    def percent(self):
-        """Returns the percent to be displayed."""
-        return '{0}%'.format(int(self.eta.percent))
+    def str_eta(self):
+        """Returns a formatted ETA value for the progress bar."""
+        eta = eta_letters(self._eta.elapsed) if self.done else self._eta_string
+        if not eta:
+            return ''
+        if eta.count(' ') > 1:
+            eta = ' '.join(eta.split(' ')[:2])  # Only show up to two units (h and m, no s for example).
+        return (' in {0}' if self.done else 'eta {0}').format(eta)
 
     @property
-    def numerator(self):
-        """Returns the numerator with formatting."""
-        return locale.format('%d', self.eta.numerator, grouping=True)
-
-    @property
-    def rate(self):
+    def str_rate(self):
         """Returns the rate with formatting. If done, returns the overall rate instead."""
         # Handle special cases.
-        if not self.eta.started or self.eta.stalled or self.eta.rate == 0.0:
+        if not self._eta.started or self._eta.stalled or not self.rate:
             return '--.-KiB/s'
 
-        unit_rate, unit = None  # UnitByte(self.eta.rate_overall if (self.eta.done or self.done) else self.eta.rate).auto
+        unit_rate, unit = UnitByte(self._eta.rate_overall if self.done else self.rate).auto
         if unit_rate >= 100:
             formatter = '%d'
         elif unit_rate >= 10:
@@ -196,36 +220,6 @@ class ProgressBarWget(Bar, BaseProgressBar):
         else:
             formatter = '%.2f'
         return '{0}{1}/s'.format(locale.format(formatter, unit_rate, grouping=False), unit)
-
-    @property
-    def eta_string(self):
-        """Returns a formatted ETA value for the progress bar."""
-        if self.eta.done or self.done:
-            return ' in {0}'.format(getattr(self, '_EtaLetters__eta')(self.eta.elapsed))
-
-        # Restore from cache.
-        if self._eta_every[2] and self._eta_every[1] < self._eta_every[0]:
-            self._eta_every[1] += 1
-            return self._eta_every[2]
-
-        # Return blank if ETA isn't ready yet.
-        seconds = self.eta.eta_seconds
-        if seconds is None:
-            return ''
-
-        # Draw ETA.
-        eta = getattr(self, '_EtaLetters__eta')(self.eta.eta_seconds)
-        if eta.count(' ') > 1:
-            eta = ' '.join(eta.split(' ')[:2])
-        eta_formatted = 'eta {0}'.format(eta)
-        self._eta_every[1] = 1
-        self._eta_every[2] = eta_formatted
-        return eta_formatted
-
-    @property
-    def bar(self):
-        """Generates and returns the progress bar (one-line string)."""
-        return getattr(self, '_BaseProgressBar__bar_with_dynamic_bar')
 
 
 class ProgressBarYum(Bar, BaseProgressBar):

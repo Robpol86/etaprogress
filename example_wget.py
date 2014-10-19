@@ -67,19 +67,19 @@ def main():
     # Download.
     thread.start()
     while True:
-        progress_bar.eta.numerator = thread.bytes_downloaded
-        print(progress_bar.bar, end='\r')
+        progress_bar.numerator = thread.bytes_downloaded
+        print(progress_bar, end='\r')
         sys.stdout.flush()
 
         # For undefined downloads (no content-length), check if thread has stopped. Loop only checks defined downloads.
         if not thread.isAlive():
             progress_bar.force_done = True
             break
-        if progress_bar.eta.done:
+        if progress_bar.done:
             break
 
         time.sleep(print_every_seconds)
-    print(progress_bar.bar)  # Always print one last time.
+    print(progress_bar)  # Always print one last time.
 
 
 if __name__ == '__main__':
