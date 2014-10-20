@@ -80,3 +80,25 @@ print()
 ```
 100% (5/5) [###############] eta 00:00 \
 ```
+
+### Terminal Colors Support
+
+Colors are supported using [colorclass](https://github.com/Robpol86/colorclass). Take a look at
+[example_colors.py](example_colors.py) on how to implement colorful progress bars. You may have to subclass one of the
+ProgressBar classes (or even BaseProgressBar) to add colors to every nook and cranny of a progress bar.
+
+### Class Attributes
+
+There are five different progress bar classes with visual differences:
+
+* `ProgressBar` -- a simple progress bar.
+* `ProgressBarBits` -- similar to `ProgressBar` but converts numbers to bits, kilobits, etc.
+* `ProgressBarBytes` -- similar to `ProgressBar` but converts numbers to bytes, kibibytes (kilobytes), etc.
+* `ProgressBarWget` -- a progress bar that looks like the one in the GNU `wget` application.
+* `ProgressBarYum` -- a progress bar that looks like the one in CentOS/RHEL 7 YUM utility.
+
+Below is a list of attributes available (though not necessarily used, e.g. not all show rates) to all classes.
+
+Name | Description/Notes
+:--- | :----------------
+`max_width` | Limit number of characters shown (by default the full progress bar takes up the entire terminal width).
