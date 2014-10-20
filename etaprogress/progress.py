@@ -24,6 +24,18 @@ class ProgressBar(BaseProgressBar):
       8% (  8/100) [##                                  ] eta 00:24 /
     100% (100/100) [####################################] eta 00:01 -
     23 [                       ?                        ] eta --:-- |
+
+    Positional arguments:
+    denominator -- the final/total number of units (like the expected file size of a download). 0 if unknown.
+
+    Keyword arguments:
+    max_with -- limit number of characters shown (by default the full progress bar takes up the entire terminal width).
+
+    Instance variables:
+    template -- string template of the full progress bar.
+    bar -- class instance of the 'bar' part of the full progress bar.
+
+    More instance variables in etaprogress.components.base_progress_bar.BaseProgressBar.
     """
 
     def __init__(self, denominator, max_width=None):
@@ -81,6 +93,17 @@ class ProgressBarBits(ProgressBar):
       7% (  7.40/100.00 mb) [#                          ] eta 00:20 \
     100% (100.00/100.00 mb) [###########################] eta 00:00 \
     62.96 mb [                               ?          ] eta --:-- |
+
+    Positional arguments:
+    denominator -- the final/total number of units (like the expected file size of a download). 0 if unknown.
+
+    Keyword arguments:
+    max_with -- limit number of characters shown (by default the full progress bar takes up the entire terminal width).
+
+    Instance variables:
+    _unit_class -- class object responsible for converting bits into megabits/etc.
+
+    More instance variables in etaprogress.progress.ProgressBar.
     """
 
     def __init__(self, denominator, max_width=None):
@@ -126,6 +149,17 @@ class ProgressBarBytes(ProgressBarBits):
       7% ( 7.06/95.37 MiB) [##                          ] eta 00:20 \
     100% (95.37/95.37 MiB) [############################] eta 00:00 |
     24.72 MiB [                     ?                   ] eta --:-- -
+
+    Positional arguments:
+    denominator -- the final/total number of units (like the expected file size of a download). 0 if unknown.
+
+    Keyword arguments:
+    max_with -- limit number of characters shown (by default the full progress bar takes up the entire terminal width).
+
+    Instance variables:
+    _unit_class -- class object responsible for converting bytes into mebibytes/etc.
+
+    More instance variables in etaprogress.progress.ProgressBarBits.
     """
 
     def __init__(self, denominator, max_width=None):
@@ -141,20 +175,22 @@ class ProgressBarWget(BaseProgressBar):
     100%[======================>] 100,000,000 4.59MiB/s   in 21s
         [                  <=>  ] 22,222,206  4.65MiB/s
         [  <=>                  ] 100,000,000 4.59MiB/s   in 21s
+
+    Positional arguments:
+    denominator -- the final/total number of units (like the expected file size of a download). 0 if unknown.
+
+    Keyword arguments:
+    max_with -- limit number of characters shown (by default the full progress bar takes up the entire terminal width).
+    eta_every -- calculate and cache the ETA string after this many numerator setting iteration. Default is every iter.
+
+    Instance variables:
+    template -- string template of the full progress bar.
+    bar -- class instance of the 'bar' part of the full progress bar.
+
+    More instance variables in etaprogress.components.base_progress_bar.BaseProgressBar.
     """
 
-    _Bar__CHAR_UNIT_FULL = '='
-    _Bar__CHAR_UNIT_LEADING = '>'
-    _Bar__CHARS_UNDEFINED_ANIMATED = '<=>'
-
     def __init__(self, denominator, max_width=None, eta_every=1):
-        """Positional arguments:
-        denominator -- the final unit (Content Length, final size, etc.). None if unknown.
-
-        Keyword arguments:
-        max_width -- limit final output to this width instead of terminal width.
-        eta_every -- if 4, then every 4th .bar iteration changes the ETA displayed.
-        """
         super(ProgressBarWget, self).__init__(denominator, max_width=max_width, eta_every=eta_every)
         if self.undefined:
             self.template = '    {bar} {numerator:<11s} {rate:>9s}  {eta:<12s}'
@@ -223,15 +259,23 @@ class ProgressBarYum(BaseProgressBar):
     CentOS-7.0  27% [===-         ] 265 MiB/s | 1.8 GiB  00:00:19 ETA
     CentOS-7.0-1406-x86_64-Everything.iso     | 6.6 GiB  00:00:26
     CentOS-7.0      [             ] 265 MiB/s | 2.8 GiB
+
+    Positional arguments:
+    denominator -- the final/total number of units (like the expected file size of a download). 0 if unknown.
+    filename -- the string to display before the progress bar. Limited to whatever space is available in the terminal.
+
+    Keyword arguments:
+    max_with -- limit number of characters shown (by default the full progress bar takes up the entire terminal width).
+
+    Instance variables:
+    template -- string template of the full progress bar.
+    template_completed -- string template of the full progress bar at 100% or force_done = True.
+    bar -- class instance of the 'bar' part of the full progress bar.
+
+    More instance variables in etaprogress.components.base_progress_bar.BaseProgressBar.
     """
 
     def __init__(self, denominator, filename, max_width=None):
-        """Positional arguments:
-        denominator -- the final unit (Content Length, final size, etc.). None if unknown.
-
-        Keyword arguments:
-        max_width -- limit final output to this width instead of terminal width.
-        """
         super(ProgressBarYum, self).__init__(denominator, max_width=max_width)
         self.filename = filename
         self.template = '{filename} {percent:>4s} {bar} {rate:>9s} | {numerator:>7s}  {eta:<12s}'

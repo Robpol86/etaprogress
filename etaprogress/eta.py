@@ -16,18 +16,19 @@ _NOW = time.time  # For testing.
 class ETA(object):
     """Calculates the estimated time remaining using Simple Linear Regression.
 
-    If `denominator` is 0 or less, no ETA will be available.
+    If `denominator` is 0 or None, no ETA will be available.
 
     Keyword arguments:
     denominator -- the final/total number of units (like the expected file size of a download). 0 if unknown.
+    scope -- used up to these many recent numerator entries to calculate the rate and ETA. Default is 60.
 
     Instance variables:
     eta_epoch -- expected time (seconds since Unix epoch or time.time()) of completion (float).
     rate -- current rate of progress (float).
     _start_time -- used to derive the amount of time everything took to reach 100%.
     _timing_data -- deque instance holding timing data. Similar to a list. Items are 2-item tuples, first item (x) is
-        time.time(), second item (y) is the numerator. Limited to the scope (default 60) to base ETA on. Once this limit
-        is reached, any new numerator item pushes off the oldest entry from the deque instance.
+        time.time(), second item (y) is the numerator. Limited to `scope` to base ETA on. Once this limit is reached,
+        any new numerator item pushes off the oldest entry from the deque instance.
     """
 
     def __init__(self, denominator=0, scope=60):
