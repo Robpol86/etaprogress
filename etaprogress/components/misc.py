@@ -26,6 +26,8 @@ def get_remaining_width(sample_string, max_terminal_width=None):
 
     Positional arguments:
     sample_string -- gets the length of this string.
+
+    Keyword arguments:
     max_terminal_width -- limit the overall width of everything to these many characters.
 
     Returns:
