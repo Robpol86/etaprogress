@@ -9,26 +9,32 @@ class UnitBit(object):
 
     @property
     def b(self):
+        """bit"""
         return self._value
 
     @property
     def kb(self):
+        """kilobit"""
         return self._value / 1000.0
 
     @property
     def mb(self):
+        """megabit"""
         return self._value / 1000000.0
 
     @property
     def gb(self):
+        """gigabit"""
         return self._value / 1000000000.0
 
     @property
     def tb(self):
+        """terabit"""
         return self._value / 1000000000000.0
 
     @property
     def auto(self):
+        """Returns the highest whole-number unit."""
         if self._value >= 1000000000000:
             return self.tb, 'tb'
         if self._value >= 1000000000:
@@ -49,26 +55,32 @@ class UnitByte(object):
 
     @property
     def B(self):
+        """byte"""
         return self._value
 
     @property
     def KiB(self):
+        """kibibyte"""
         return self._value / 1024.0
 
     @property
     def MiB(self):
+        """mebibyte"""
         return self._value / 1048576.0
 
     @property
     def GiB(self):
+        """gibibyte"""
         return self._value / 1073741824.0
 
     @property
     def TiB(self):
+        """tebibyte"""
         return self._value / 1099511627776.0
 
     @property
     def auto(self):
+        """Returns the highest whole-number unit."""
         if self._value >= 1099511627776:
             return self.TiB, 'TiB'
         if self._value >= 1073741824:
