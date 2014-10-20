@@ -57,32 +57,46 @@ def eta_letters(seconds, shortest=False, leading_zero=False):
     if not seconds:
         return '00s' if leading_zero else '0s'
 
-    # Split up seconds into other units.
-    values = dict(week=0, day=0, hour=0, minute=0, second=0)
-    if seconds >= 604800:
-        values['week'] = int(seconds / 604800.0)
-        seconds -= values['week'] * 604800
-    if seconds >= 86400:
-        values['day'] = int(seconds / 86400.0)
-        seconds -= values['day'] * 86400
-    if seconds >= 3600:
-        values['hour'] = int(seconds / 3600.0)
-        seconds -= values['hour'] * 3600
-    if seconds >= 60:
-        values['minute'] = int(seconds / 60.0)
-        seconds -= values['minute'] * 60
-    values['second'] = int(ceil(seconds))
+    # Convert seconds to other units.
+    final_weeks, final_days, final_hours, final_minutes, final_seconds = 0, 0, 0, 0, seconds
+    if final_seconds >= 604800:
+        final_weeks = int(final_seconds / 604800.0)
+        final_seconds -= final_weeks * 604800
+    if final_seconds >= 86400:
+        final_days = int(final_seconds / 86400.0)
+        final_seconds -= final_days * 86400
+    if final_seconds >= 3600:
+        final_hours = int(final_seconds / 3600.0)
+        final_seconds -= final_hours * 3600
+    if final_seconds >= 60:
+        final_minutes = int(final_seconds / 60.0)
+        final_seconds -= final_minutes * 60
+    final_seconds = int(ceil(final_seconds))
 
-    # Map to characters.
-    leading = lambda x: ('{0:02.0f}' if leading_zero else '{0}').format(x)
-    mapped = (
-        ('w', str(values['week'] or '')),
-        ('d', str(values['day'] or '')),
-        ('h', str(values['hour'] or '')),
-        ('m', leading(values['minute']) if values['minute'] else ''),
-        ('s', leading(values['second']) if values['second'] else ''),
-    )
-    trimmed = [(k, v) for k, v in mapped if v]
-    formatted = ['{0}{1}'.format(v, k) for k, v in trimmed]
+    # Handle shortest:
+    if shortest:
+        if final_weeks:
+            formatted = str(final_weeks) + 'w'
+        elif final_days:
+            formatted = str(final_days) + 'd'
+        elif final_hours:
+            formatted = str(final_hours) + 'h'
+        elif final_minutes:
+            formatted = '{0:0{1}d}m'.format(final_minutes, 2 if leading_zero else 1)
+        else:
+            formatted = '{0:0{1}d}s'.format(final_seconds, 2 if leading_zero else 1)
+        return formatted
 
-    return formatted[0] if shortest else ' '.join(formatted)
+    # Determine which string template to use.
+    if final_weeks:
+        template = '{0:d}w {1:d}d {2:d}h {3:02d}m {4:02d}s' if leading_zero else '{0}w {1}d {2}h {3}m {4}s'
+    elif final_days:
+        template = '{1:d}d {2:d}h {3:02d}m {4:02d}s' if leading_zero else '{1}d {2}h {3}m {4}s'
+    elif final_hours:
+        template = '{2:d}h {3:02d}m {4:02d}s' if leading_zero else '{2}h {3}m {4}s'
+    elif final_minutes:
+        template = '{3:02d}m {4:02d}s' if leading_zero else '{3}m {4}s'
+    else:
+        template = '{4:02d}s' if leading_zero else '{4}s'
+
+    return template.format(final_weeks, final_days, final_hours, final_minutes, final_seconds)
