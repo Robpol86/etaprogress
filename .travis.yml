@@ -11,6 +11,13 @@ install: 'pip install .'
 
 before_script: 'pip install python-coveralls'
 
-script: 'python setup.py test'
+script:
+  - 'python setup.py test'
+  - 'python example.py progress_bar'
+  - 'python example.py progress_bar_bits'
+  - 'python example.py progress_bar_bytes'
+  - 'python example.py progress_bar_wget'
+  - 'python example.py progress_bar_yum'
+  - 'python example_colors.py run'
 
 after_success: 'coveralls -i'
