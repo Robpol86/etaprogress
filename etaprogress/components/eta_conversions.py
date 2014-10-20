@@ -17,27 +17,28 @@ def eta_hms(seconds, always_show_hours=False, always_show_minutes=False, hours_l
     Returns:
     Human readable string.
     """
-    values = dict(hour=0, minute=0, second=0)
-    if seconds >= 3600 or always_show_hours:
+    # Convert seconds to other units.
+    final_hours, final_minutes, final_seconds = 0, 0, seconds
+    if final_seconds >= 3600:
+        final_hours = int(final_seconds / 3600.0)
+        final_seconds -= final_hours * 3600
+    if final_seconds >= 60:
+        final_minutes = int(final_seconds / 60.0)
+        final_seconds -= final_minutes * 60
+    final_seconds = int(ceil(final_seconds))
+
+    # Determine which string template to use.
+    if final_hours or always_show_hours:
         if hours_leading_zero:
             template = '{hour:02.0f}:{minute:02.0f}:{second:02.0f}'
         else:
             template = '{hour}:{minute:02.0f}:{second:02.0f}'
-    elif seconds >= 60 or always_show_minutes:
+    elif final_minutes or always_show_minutes:
         template = '{minute:02.0f}:{second:02.0f}'
     else:
         template = '{second:02.0f}'
 
-    # Split up seconds into other units.
-    if seconds >= 3600:
-        values['hour'] = int(seconds / 3600.0)
-        seconds -= values['hour'] * 3600
-    if seconds >= 60:
-        values['minute'] = int(seconds / 60.0)
-        seconds -= values['minute'] * 60
-    values['second'] = int(ceil(seconds))
-
-    return template.format(**values)
+    return template.format(hour=final_hours, minute=final_minutes, second=final_seconds)
 
 
 def eta_letters(seconds, shortest=False, leading_zero=False):

@@ -9,6 +9,7 @@ from collections import deque
 from math import sqrt
 import time
 
+__all__ = ('ETA', )
 _NOW = time.time  # For testing.
 
 

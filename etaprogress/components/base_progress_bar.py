@@ -16,6 +16,7 @@ class BaseProgressBar(object):
 
     @staticmethod
     def _generate_eta(seconds):
+        """Kind of like an interface method, to be implemented by subclasses."""
         raise NotImplementedError
 
     @property

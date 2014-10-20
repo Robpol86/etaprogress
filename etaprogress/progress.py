@@ -14,6 +14,8 @@ from etaprogress.components.eta_conversions import eta_hms, eta_letters
 from etaprogress.components.misc import get_remaining_width, SPINNER
 from etaprogress.components.units import UnitBit, UnitByte
 
+__all__ = ('ProgressBar', 'ProgressBarBits', 'ProgressBarBytes', 'ProgressBarWget', 'ProgressBarYum')
+
 
 class ProgressBar(BaseProgressBar):
     """Draw a progress bar showing the ETA, percentage, done/total items, and a spinner.
@@ -133,7 +135,7 @@ class ProgressBarBytes(ProgressBarBits):
     """
 
     def __init__(self, denominator, max_width=None):
-        super(ProgressBarBits, self).__init__(denominator, max_width)
+        super(ProgressBarBytes, self).__init__(denominator, max_width)
         self._unit_class = UnitByte
 
 
