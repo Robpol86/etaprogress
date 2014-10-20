@@ -9,7 +9,7 @@ python:
 
 install: 'pip install .'
 
-before_script: 'pip install python-coveralls'
+before_script: 'pip install python-coveralls docopt colorclass'
 
 script:
   - 'python setup.py test'

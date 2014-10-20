@@ -3,7 +3,7 @@
 Draw progress bars with room for colors and display rates and ETAs in your console applications. ETA library is its own
 class so it may be used in other non-console applications. ETAs calculated with simple linear regression.
 
-This library supports both defined and undefined progress bars. Undefined progress bars are those which do not have a
+This library supports both defined and undefined progress bars. Undefined progress bars are those that do not have a
 "total size". Similar to when wget downloads a file with an unknown file size. Due to this, undefined progress bars
 have no percent and no ETA. Defined progress bars are the usual progress bars with percentages and ETAs.
 
