@@ -21,11 +21,9 @@ class ProgressBar(BaseProgressBar):
     """Draw a progress bar showing the ETA, percentage, done/total items, and a spinner.
 
     Looks like one of these:
-     90% ( 90/100) [###############################   ] eta 1:00:00 \
-    100% (100/100) [#################################  ] eta  00:00 |
-    100 [     ?                                         ] eta --:-- /
-    100% (100/100) [###################################] eta  00:00 |
-    100 [                    ?                          ] eta --:-- /
+      8% (  8/100) [##                                  ] eta 00:24 /
+    100% (100/100) [####################################] eta 00:01 -
+    23 [                       ?                        ] eta --:-- |
     """
 
     def __init__(self, denominator, max_width=None):
@@ -80,11 +78,9 @@ class ProgressBarBits(ProgressBar):
     """Draw a progress bar showing the ETA, percentage, done/total items, a spinner, and units in bits.
 
     Looks like one of these:
-     90% ( 90.00/100.00 kb) [######################   ] eta 1:00:00 \
-    100% (100.00/100.00 kb) [########################  ] eta  00:00 |
-    100.00 kb [     ?                                   ] eta --:-- /
-    100% (100.00/100.00 kb) [##########################] eta  00:00 |
-    100.00 kb [                 ?                       ] eta --:-- /
+      7% (  7.40/100.00 mb) [#                          ] eta 00:20 \
+    100% (100.00/100.00 mb) [###########################] eta 00:00 \
+    62.96 mb [                               ?          ] eta --:-- |
     """
 
     def __init__(self, denominator, max_width=None):
@@ -127,11 +123,9 @@ class ProgressBarBytes(ProgressBarBits):
     """Draw a progress bar showing the ETA, percentage, done/total items, a spinner, and units in bytes.
 
     Looks like one of these:
-     90% ( 90.00/100.00 KiB) [######################   ] eta 1:00:00 \
-    100% (100.00/100.00 KiB) [########################  ] eta  00:00 |
-    100.00 KiB [     ?                                   ] eta --:-- /
-    100% (100.00/100.00 KiB) [##########################] eta  00:00 |
-    100.00 KiB [                 ?                       ] eta --:-- /
+      7% ( 7.06/95.37 MiB) [##                          ] eta 00:20 \
+    100% (95.37/95.37 MiB) [############################] eta 00:00 |
+    24.72 MiB [                     ?                   ] eta --:-- -
     """
 
     def __init__(self, denominator, max_width=None):
@@ -143,12 +137,10 @@ class ProgressBarWget(BaseProgressBar):
     """Progress bar modeled after the one in wget.
 
     Looks like one of these:
-     1% [                             ] 1,133,490   1.05MiB/s
-    33% [========>                    ] 35,248,370  9.46MiB/s  eta 10s
-    33% [========>                    ] 35,248,370  9.46MiB/s  eta 2m 10s
-    100%[============================>] 104,874,307 14.3MiB/s   in 9.7s
-        [      <=>                    ] 35,248,370  9.46MiB/s
-        [                   <=>       ] 35,248,370  --.-KiB/s   in 9.7s
+    35% [=======>               ] 35,802,443  4.66MiB/s  eta 14s
+    100%[======================>] 100,000,000 4.59MiB/s   in 21s
+        [                  <=>  ] 22,222,206  4.65MiB/s
+        [  <=>                  ] 100,000,000 4.59MiB/s   in 21s
     """
 
     _Bar__CHAR_UNIT_FULL = '='
@@ -228,10 +220,9 @@ class ProgressBarYum(BaseProgressBar):
     """Progress bar modeled after the one in YUM.
 
     Looks like one of these:
-    filename.iso   99% [============-] 294 KiB/s | 407 KiB  00:00:03 ETA
-    file.iso        9% [==           ] 294 KiB/s | 407 KiB  00:00:03 ETA
-    no_length.iso      [             ] 294 KiB/s | 407 KiB
-    stalled.iso        [             ] --- KiB/s | 407 KiB
+    CentOS-7.0  27% [===-         ] 265 MiB/s | 1.8 GiB  00:00:19 ETA
+    CentOS-7.0-1406-x86_64-Everything.iso     | 6.6 GiB  00:00:26
+    CentOS-7.0      [             ] 265 MiB/s | 2.8 GiB
     """
 
     def __init__(self, denominator, filename, max_width=None):
