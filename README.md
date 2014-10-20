@@ -43,8 +43,6 @@ get the progress bar itself just cast to string or print the instance.
 
 ### Simple Usage
 
-> These examples are intended for python2.7.
-
 ```python
 import time
 from etaprogress.progress import ProgressBar
