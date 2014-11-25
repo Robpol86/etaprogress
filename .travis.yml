@@ -1,23 +1,24 @@
 language: python
 
 python:
-  - '2.6'
-  - '2.7'
-  - 'pypy'
-  - '3.3'
-  - '3.4'
+  - 2.6
+  - 2.7
+  - pypy
+  - 3.3
+  - 3.4
 
-install: 'pip install .'
-
-before_script: 'pip install python-coveralls docopt colorclass'
+install:
+  - python -c 'import setup; print(setup.REQUIRES_PIP)' |xargs pip install
+  - pip install robpol86-codecov colorclass docopt
+  - pip install .
 
 script:
-  - 'python setup.py test'
-  - 'python example.py progress_bar'
-  - 'python example.py progress_bar_bits'
-  - 'python example.py progress_bar_bytes'
-  - 'python example.py progress_bar_wget'
-  - 'python example.py progress_bar_yum'
-  - 'python example_colors.py run'
+  - python setup.py test
+  - python example.py progress_bar
+  - python example.py progress_bar_bits
+  - python example.py progress_bar_bytes
+  - python example.py progress_bar_wget
+  - python example.py progress_bar_yum
+  - python example_colors.py run
 
-after_success: 'coveralls -i'
+after_success: codecov

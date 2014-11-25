@@ -1,19 +1,10 @@
-import locale
-
-import pytest
-
 from etaprogress import eta
 from etaprogress.components import misc
 from etaprogress.progress import ProgressBarWget
 
 
-@pytest.fixture(autouse=True, scope='module')
-def define_locale():
-    locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
-
-
 def test_undefined():
-    misc.DEFAULT_TERMINAL_WIDTH = 60
+    misc.terminal_width = lambda: 60
     eta._NOW = lambda: 1411868721.5
     progress_bar = ProgressBarWget(None, max_width=55)
 
@@ -223,7 +214,7 @@ def test_overflow_eta_caching():
 
 
 def test_defined_long():
-    misc.DEFAULT_TERMINAL_WIDTH = 45
+    misc.terminal_width = lambda: 45
     eta._NOW = lambda: 1411868721.5
     progress_bar = ProgressBarWget(20)
 

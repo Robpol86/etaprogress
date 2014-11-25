@@ -16,6 +16,7 @@ Options:
 
 from __future__ import print_function
 import locale
+import os
 import signal
 import sys
 import time
@@ -101,7 +102,10 @@ def progress_bar_yum():
 
 
 def main():
-    locale.resetlocale()
+    if os.name == 'nt':
+        locale.setlocale(locale.LC_ALL, 'english-us')
+    else:
+        locale.resetlocale()
     if OPTIONS['progress_bar']:
         progress_bar()
     elif OPTIONS['progress_bar_bits']:

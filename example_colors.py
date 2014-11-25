@@ -14,11 +14,12 @@ Options:
 
 from __future__ import print_function
 import locale
+import os
 import signal
 import sys
 import time
 
-from colorclass import Color, set_dark_background, set_light_background
+from colorclass import Color, set_dark_background, set_light_background, Windows
 from docopt import docopt
 from etaprogress.progress import ProgressBar
 
@@ -35,8 +36,12 @@ def error(message, code=1):
 
 
 def main():
+    Windows.enable()  # Does nothing if not on Windows.
     # Prepare.
-    locale.resetlocale()
+    if os.name == 'nt':
+        locale.setlocale(locale.LC_ALL, 'english-us')
+    else:
+        locale.resetlocale()
     progress_bar = ProgressBar(100)
     progress_bar.bar.CHAR_FULL = Color('{autoyellow}#{/autoyellow}')
     progress_bar.bar.CHAR_LEADING = Color('{autoyellow}#{/autoyellow}')

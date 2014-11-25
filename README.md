@@ -7,19 +7,20 @@ This library supports both defined and undefined progress bars. Undefined progre
 "total size". Similar to when wget downloads a file with an unknown file size. Due to this, undefined progress bars
 have no percent and no ETA. Defined progress bars are the usual progress bars with percentages and ETAs.
 
-`etaprogress` is supported on Python 2.6, 2.7, 3.3, and 3.4.
+* Python 2.6, 2.7, 3.3, and 3.4 supported on Linux and OS X.
+* Python 2.7, 3.3, and 3.4 supported on Windows (both 32 and 64 bit versions of Python).
 
-[![Build Status](https://travis-ci.org/Robpol86/etaprogress.svg?branch=master)]
+Tested on Windows XP and Windows 10 technical preview.
+
+[![Build Status Windows](https://img.shields.io/appveyor/ci/Robpol86/etaprogress.svg?style=flat-square)]
+(https://ci.appveyor.com/project/Robpol86/etaprogress)
+[![Build Status](https://img.shields.io/travis/Robpol86/etaprogress/master.svg?style=flat-square)]
 (https://travis-ci.org/Robpol86/etaprogress)
-[![Coverage Status](https://img.shields.io/coveralls/Robpol86/etaprogress.svg)]
-(https://coveralls.io/r/Robpol86/etaprogress)
-[![Latest Version](https://pypip.in/version/etaprogress/badge.png)]
+[![Coverage Status](https://img.shields.io/codecov/c/github/Robpol86/etaprogress/master.svg?style=flat-square)]
+(https://codecov.io/github/Robpol86/etaprogress)
+[![Latest Version](https://img.shields.io/pypi/v/etaprogress.svg?style=flat-square)]
 (https://pypi.python.org/pypi/etaprogress/)
-[![Downloads](https://pypip.in/download/etaprogress/badge.png)]
-(https://pypi.python.org/pypi/etaprogress/)
-[![Download format](https://pypip.in/format/etaprogress/badge.png)]
-(https://pypi.python.org/pypi/etaprogress/)
-[![License](https://pypip.in/license/etaprogress/badge.png)]
+[![Downloads](https://img.shields.io/pypi/dm/etaprogress.svg?style=flat-square)]
 (https://pypi.python.org/pypi/etaprogress/)
 
 ## Quickstart
@@ -119,6 +120,10 @@ Name | Description/Notes
 `undefined` | Return True if the progress bar is undefined.
 
 ## Changelog
+
+#### 1.1.0
+
+* Added Windows support.
 
 #### 1.0.0
 

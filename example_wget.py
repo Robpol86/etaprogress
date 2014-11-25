@@ -13,6 +13,7 @@ Options:
 
 from __future__ import print_function
 import locale
+import os
 import signal
 import sys
 import threading
@@ -57,7 +58,10 @@ class DownloadThread(threading.Thread):
 def main():
     """From: http://stackoverflow.com/questions/20801034/how-to-measure-download-speed-and-progress-using-requests"""
     # Prepare.
-    locale.resetlocale()
+    if os.name == 'nt':
+        locale.setlocale(locale.LC_ALL, 'english-us')
+    else:
+        locale.resetlocale()
     response = requests.get(OPTIONS['<url>'], stream=True)
     content_length = None if OPTIONS['--ignore-length'] else int(response.headers.get('Content-Length'))
     progress_bar = ProgressBarWget(content_length, eta_every=4)

@@ -1,19 +1,14 @@
-import locale
-
-import pytest
-
 from etaprogress import eta
 from etaprogress.components import misc
 from etaprogress.progress import ProgressBar
 
 
-@pytest.fixture(autouse=True, scope='module')
-def define_locale():
-    locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
+def test_terminal_width():
+    assert 80 == misc.terminal_width()
 
 
 def test_undefined():
-    misc.DEFAULT_TERMINAL_WIDTH = 40
+    misc.terminal_width = lambda: 40
     progress_bar = ProgressBar(None, max_width=30)
 
     assert '0 [?             ] eta --:-- /' == str(progress_bar)

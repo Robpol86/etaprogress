@@ -1,19 +1,10 @@
-import locale
-
-import pytest
-
 from etaprogress import eta
 from etaprogress.components import misc
 from etaprogress.progress import ProgressBarBytes
 
 
-@pytest.fixture(autouse=True, scope='module')
-def define_locale():
-    locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
-
-
 def test_undefined():
-    misc.DEFAULT_TERMINAL_WIDTH = 50
+    misc.terminal_width = lambda: 50
     progress_bar = ProgressBarBytes(None, max_width=30)
 
     assert '0 B [?           ] eta --:-- /' == str(progress_bar)
@@ -108,7 +99,7 @@ def test_defined_wont_fit():
 
 
 def test_defined_long():
-    misc.DEFAULT_TERMINAL_WIDTH = 42
+    misc.terminal_width = lambda: 42
     progress_bar = ProgressBarBytes(20)
 
     assert '  0% ( 0/20 B) [             ] eta --:-- -' == str(progress_bar)
