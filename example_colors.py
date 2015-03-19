@@ -4,10 +4,11 @@
 Requires colorclass (pip install colorclass).
 
 Usage:
-    example_colors.py run [--light-bg]
+    example_colors.py run [-f] [--light-bg]
     example_colors.py run -h | --help
 
 Options:
+    -f --fast       Quickly run example (for testing).
     -h --help       Show this screen.
     --light-bg      Autocolors adapt to white/light backgrounds.
 """
@@ -42,14 +43,14 @@ def main():
         locale.setlocale(locale.LC_ALL, 'english-us')
     else:
         locale.resetlocale()
-    progress_bar = ProgressBar(100)
+    progress_bar = ProgressBar(5 if OPTIONS['--fast'] else 100)
     progress_bar.bar.CHAR_FULL = Color('{autoyellow}#{/autoyellow}')
     progress_bar.bar.CHAR_LEADING = Color('{autoyellow}#{/autoyellow}')
     progress_bar.bar.CHAR_LEFT_BORDER = Color('{autoblue}[{/autoblue}')
     progress_bar.bar.CHAR_RIGHT_BORDER = Color('{autoblue}]{/autoblue}')
 
     # Run.
-    for i in range(101):
+    for i in range(6 if OPTIONS['--fast'] else 101):
         progress_bar.numerator = i
         print(progress_bar, end='\r')
         sys.stdout.flush()

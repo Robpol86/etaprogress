@@ -2,14 +2,15 @@
 """Example implementation of all progress bars.
 
 Usage:
-    example_colors.py progress_bar [--undefined]
-    example_colors.py progress_bar_bits [--undefined]
-    example_colors.py progress_bar_bytes [--undefined]
-    example_colors.py progress_bar_wget [--undefined]
-    example_colors.py progress_bar_yum [--undefined]
+    example_colors.py progress_bar [-f] [--undefined]
+    example_colors.py progress_bar_bits [-f] [--undefined]
+    example_colors.py progress_bar_bytes [-f] [--undefined]
+    example_colors.py progress_bar_wget [-f] [--undefined]
+    example_colors.py progress_bar_yum [-f] [--undefined]
     example_colors.py -h | --help
 
 Options:
+    -f --fast       Quickly run example (for testing).
     -h --help       Show this screen.
     --undefined     Show undefined progress bars instead.
 """
@@ -37,8 +38,9 @@ def error(message, code=1):
 
 
 def progress_bar():
-    bar = ProgressBar(0 if OPTIONS['--undefined'] else 100)
-    for i in range(101):
+    denominator = 5 if OPTIONS['--fast'] else 100
+    bar = ProgressBar(0 if OPTIONS['--undefined'] else denominator)
+    for i in range(denominator + 1):
         bar.numerator = i
         print(bar, end='\r')
         sys.stdout.flush()
@@ -48,50 +50,53 @@ def progress_bar():
 
 
 def progress_bar_bits():
-    bar = ProgressBarBits(0 if OPTIONS['--undefined'] else 100000000)
-    for i in range(0, 100000001, 1234567):
+    denominator = 10 if OPTIONS['--fast'] else 100000000
+    bar = ProgressBarBits(0 if OPTIONS['--undefined'] else denominator)
+    for i in range(0, denominator + 1, 2 if OPTIONS['--fast'] else 1234567):
         bar.numerator = i
         print(bar, end='\r')
         sys.stdout.flush()
         time.sleep(0.25)
-    bar.numerator = 100000000
+    bar.numerator = denominator
     bar.force_done = True
     print(bar)
 
 
 def progress_bar_bytes():
-    bar = ProgressBarBytes(0 if OPTIONS['--undefined'] else 100000000)
-    for i in range(0, 100000001, 1234567):
+    denominator = 10 if OPTIONS['--fast'] else 100000000
+    bar = ProgressBarBytes(0 if OPTIONS['--undefined'] else denominator)
+    for i in range(0, denominator + 1, 2 if OPTIONS['--fast'] else 1234567):
         bar.numerator = i
         print(bar, end='\r')
         sys.stdout.flush()
         time.sleep(0.25)
-    bar.numerator = 100000000
+    bar.numerator = denominator
     bar.force_done = True
     print(bar)
 
 
 def progress_bar_wget():
-    bar = ProgressBarWget(0 if OPTIONS['--undefined'] else 100000000)
-    for i in range(0, 100000001, 1234567):
+    denominator = 10 if OPTIONS['--fast'] else 100000000
+    bar = ProgressBarWget(0 if OPTIONS['--undefined'] else denominator)
+    for i in range(0, denominator + 1, 2 if OPTIONS['--fast'] else 1234567):
         bar.numerator = i
         print(bar, end='\r')
         sys.stdout.flush()
         time.sleep(0.25)
-    bar.numerator = 100000000
+    bar.numerator = denominator
     bar.force_done = True
     print(bar)
 
 
 def progress_bar_yum():
     files = {
-        'CentOS-7.0-1406-x86_64-DVD.iso': 4148166656,
-        'CentOS-7.0-1406-x86_64-Everything.iso': 7062159360,
-        'md5sum.txt': 486,
+        'CentOS-7.0-1406-x86_64-DVD.iso': 10 if OPTIONS['--fast'] else 4148166656,
+        'CentOS-7.0-1406-x86_64-Everything.iso': 15 if OPTIONS['--fast'] else 7062159360,
+        'md5sum.txt': 5 if OPTIONS['--fast'] else 486,
     }
     for file_name, file_size in files.items():
         bar = ProgressBarYum(0 if OPTIONS['--undefined'] else file_size, file_name)
-        for i in range(0, file_size + 1, int(file_size / 100.0)):
+        for i in range(0, file_size + 1, 2 if OPTIONS['--fast'] else int(file_size / 100.0)):
             bar.numerator = i
             print(bar, end='\r')
             sys.stdout.flush()

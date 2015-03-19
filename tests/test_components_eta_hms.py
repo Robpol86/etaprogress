@@ -55,7 +55,7 @@ def test_always_show_hours():
     assert '168:00:01' == eta_hms(604801, always_show_hours=True)
 
 
-####### The rest is mostly copy/pasted. ########
+# The rest is mostly copy/pasted. ############################################
 
 
 def test_hours_leading_zero():

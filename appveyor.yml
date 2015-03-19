@@ -1,37 +1,24 @@
 environment:
   CODECOV_TOKEN:
     secure: RWnkwWLdbfjOZN5CIz7NXCn1sE7/uV19zj/r5DTbTaNhziDFvgdutRrvRM16KZT8
-  PYTHONIOENCODING: utf-8
-
-  matrix:
-    - PYTHON: C:\Python27
-    - PYTHON: C:\Python27-x64
-    - PYTHON: C:\Python33
-    - PYTHON: C:\Python33-x64
-    - PYTHON: C:\Python34
-    - PYTHON: C:\Python34-x64
 
 init:
-  - IF DEFINED PYTHON set PATH=%PYTHON%;%PYTHON%\Scripts;%PATH%
+  - set PATH=C:\Python34-x64;C:\Python34-x64\Scripts;%PATH%
 
 install:
   - ps: Start-FileDownload https://raw.github.com/pypa/pip/master/contrib/get-pip.py
   - python get-pip.py
-  - ps: pip install $(python -c 'import setup; print(setup.REQUIRES_PIP)')
-  - pip install robpol86-codecov colorclass docopt
 
 build_script:
-  - ps: mv .git ..
-  - pip install .
-  - ps: mv ..\.git .
+  - pip install codecov tox
 
 test_script:
-  - python setup.py test
-  - python example.py progress_bar
-  - python example.py progress_bar_bits
-  - python example.py progress_bar_bytes
-  - python example.py progress_bar_wget
-  - python example.py progress_bar_yum
-  - python example_colors.py run
+  - tox
+  - cd tests
+  - ps: ls .coverage.py34x64, .coverage.py34, .coverage.py33x64, .coverage.py33, .coverage.py27x64, .coverage.py27
+  - cd ..
 
-after_test: codecov
+after_test:
+  - mv tests/.coverage.* .
+  - coverage combine
+  - codecov
