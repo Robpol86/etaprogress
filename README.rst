@@ -46,11 +46,12 @@ Install:
 Example Implementations
 -----------------------
 
-.. image:: /example.gif?raw=true
+.. image:: https://github.com/Robpol86/etaprogress/raw/master/example.gif?raw=true
    :alt: Example Scripts Screenshot
 
-Source code for examples: `example.py <example.py>`_, `example_colors.py <example_colors.py>`_,
-and `example_wget.py <example_wget.py>`_
+Source code for examples: `example.py <https://github.com/Robpol86/etaprogress/blob/master/example.py>`_,
+`example_colors.py <https://github.com/Robpol86/etaprogress/blob/master/example_colors.py>`_,
+and `example_wget.py <https://github.com/Robpol86/etaprogress/blob/master/example_wget.py>`_
 
 Usage
 -----
@@ -106,8 +107,9 @@ Terminal Colors Support
 ```````````````````````
 
 Colors are supported using `colorclass <https://github.com/Robpol86/colorclass>`_. Take a look at
-`example_colors.py <example_colors.py>`_ on how to implement colorful progress bars. You may have to subclass one of the
-ProgressBar classes (or even BaseProgressBar) to add colors to every nook and cranny of a progress bar.
+`example_colors.py <https://github.com/Robpol86/etaprogress/blob/master/example_colors.py>`_ on how to implement
+colorful progress bars. You may have to subclass one of the ProgressBar classes (or even BaseProgressBar) to add colors
+to every nook and cranny of a progress bar.
 
 Class Attributes
 ````````````````
