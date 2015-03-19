@@ -148,6 +148,11 @@ Name            Description/Notes
 Changelog
 ---------
 
+1.1.1
+`````
+
+* Fixed broken setup.py file.
+
 1.1.0
 `````
 
