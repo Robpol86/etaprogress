@@ -1,3 +1,4 @@
+===========
 etaprogress
 ===========
 
@@ -8,33 +9,33 @@ This library supports both defined and undefined progress bars. Undefined progre
 "total size". Similar to when wget downloads a file with an unknown file size. Due to this, undefined progress bars
 have no percent and no ETA. Defined progress bars are the usual progress bars with percentages and ETAs.
 
-* Python 2.6, 2.7, 3.3, and 3.4 supported on Linux and OS X.
+* Python 2.6, 2.7, PyPy, PyPy3, 3.3, and 3.4 supported on Linux and OS X.
 * Python 2.7, 3.3, and 3.4 supported on Windows (both 32 and 64 bit versions of Python).
 
 Tested on Windows XP and Windows 10 technical preview.
 
-.. image:: https://img.shields.io/appveyor/ci/Robpol86/etaprogress.svg?style=flat-square
+.. image:: https://img.shields.io/appveyor/ci/Robpol86/etaprogress/master.svg?style=flat-square&label=AppVeyor%20CI
    :target: https://ci.appveyor.com/project/Robpol86/etaprogress
    :alt: Build Status Windows
 
-.. image:: https://img.shields.io/travis/Robpol86/etaprogress/master.svg?style=flat-square
+.. image:: https://img.shields.io/travis/Robpol86/etaprogress/master.svg?style=flat-square&label=Travis%20CI
    :target: https://travis-ci.org/Robpol86/etaprogress
    :alt: Build Status
 
-.. image:: https://img.shields.io/codecov/c/github/Robpol86/etaprogress/master.svg?style=flat-square
+.. image:: https://img.shields.io/codecov/c/github/Robpol86/etaprogress/master.svg?style=flat-square&label=Codecov
    :target: https://codecov.io/github/Robpol86/etaprogress
    :alt: Coverage Status
 
-.. image:: https://img.shields.io/pypi/v/etaprogress.svg?style=flat-square
+.. image:: https://img.shields.io/pypi/v/etaprogress.svg?style=flat-square&label=Latest
    :target: https://pypi.python.org/pypi/etaprogress/
    :alt: Latest Version
 
-.. image:: https://img.shields.io/pypi/dm/etaprogress.svg?style=flat-square
+.. image:: https://img.shields.io/pypi/dm/etaprogress.svg?style=flat-square&label=PyPI%20Downloads
    :target: https://pypi.python.org/pypi/etaprogress/
    :alt: Downloads
 
 Quickstart
-----------
+==========
 
 Install:
 
@@ -42,9 +43,8 @@ Install:
 
     pip install etaprogress
 
-
 Example Implementations
------------------------
+=======================
 
 .. image:: https://github.com/Robpol86/etaprogress/raw/master/example.gif?raw=true
    :alt: Example Scripts Screenshot
@@ -54,13 +54,13 @@ Source code for examples: `example.py <https://github.com/Robpol86/etaprogress/b
 and `example_wget.py <https://github.com/Robpol86/etaprogress/blob/master/example_wget.py>`_
 
 Usage
------
+=====
 
 If all you need is a progress bar with an ETA, you only have to import a class in the ``etaprogress.progress`` module.
 To get the progress bar itself just cast to string or print the instance.
 
 Simple Usage
-````````````
+------------
 
 .. code:: python
 
@@ -104,7 +104,7 @@ Of course that's not a very good progress bar animation. Here's a better one wit
     100% (5/5) [###############] eta 00:00 \
 
 Terminal Colors Support
-```````````````````````
+-----------------------
 
 Colors are supported using `colorclass <https://github.com/Robpol86/colorclass>`_. Take a look at
 `example_colors.py <https://github.com/Robpol86/etaprogress/blob/master/example_colors.py>`_ on how to implement
@@ -112,7 +112,7 @@ colorful progress bars. You may have to subclass one of the ProgressBar classes 
 to every nook and cranny of a progress bar.
 
 Class Attributes
-````````````````
+----------------
 
 There are five different progress bar classes with visual differences:
 
@@ -132,7 +132,7 @@ Name           Description/Notes
 ============== =============================================================================================================================
 
 Class Properties
-````````````````
+----------------
 
 =============== =======================================================================================================================================================
 Name            Description/Notes
@@ -146,19 +146,23 @@ Name            Description/Notes
 =============== =======================================================================================================================================================
 
 Changelog
----------
+=========
 
-1.1.1
-`````
+This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
-* Fixed broken setup.py file.
+1.1.1 - 2015-03-18
+------------------
 
-1.1.0
-`````
+Fixed
+    * Broken setup.py file.
 
-* Added Windows support.
+1.1.0 - 2014-11-25
+------------------
 
-1.0.0
-`````
+Added
+    * Windows support.
+
+1.0.0 - 2014-10-20
+------------------
 
 * Initial release.
